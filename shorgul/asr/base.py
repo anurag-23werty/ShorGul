@@ -17,8 +17,8 @@ class ASRResult:
 
     @property
     def cacheable(self) -> bool:
-        # deterministic outcomes only: success, or a 4xx the server will always return
-        return self.status.startswith("ok") or self.status.startswith("error_4")
+        # deterministic outcomes only: success, or a request-validation error (not auth/rate/server)
+        return self.status.startswith("ok") or self.status in ("error_400", "error_422")
 
 
 class ASRBackend(Protocol):

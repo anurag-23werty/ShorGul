@@ -112,3 +112,8 @@ def test_mock_is_deterministic_and_degrades():
     hard = m.transcribe(b"a", {**p, "_condition": "market_0"}).transcript
     assert clean == m.transcribe(b"a", {**p, "_condition": "clean"}).transcript
     assert sum(w in ref.split() for w in hard.split()) < sum(w in ref.split() for w in clean.split())
+
+
+def test_auth_error_not_cached():
+    assert not ASRResult("", "error_401", 0).cacheable
+    assert ASRResult("", "error_400", 0).cacheable
