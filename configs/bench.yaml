@@ -1,0 +1,48 @@
+# ShorGul Bench configuration
+sample_rate: 16000
+
+data:
+  fleurs_configs: {hi: hi_in, bn: bn_in, ta: ta_in}
+  n_clips: 25
+  max_duration_s: 25.0
+  hinglish_script: shorgul/data/scripts_hinglish.txt
+  tts_voices: [Nalini, Deepak, Bhavna, Roopesh]   # rotated per line (timbre-v2.5, hi-IN)
+
+paths:
+  clean: data/clean
+  noise: data/noise
+  degraded: data/degraded
+  enhanced: data/enhanced
+  manifest: data/manifest.csv
+  results: results
+
+# Order inside a condition: noise (acoustic, caller side) -> phone chain -> packet loss
+conditions:
+  clean:      {}
+  phone:      {phone: true}
+  loss_5:     {phone: true, loss: 0.05}
+  traffic_10: {phone: true, noise: traffic, snr_db: 10}
+  traffic_5:  {phone: true, noise: traffic, snr_db: 5}
+  market_10:  {phone: true, noise: market, snr_db: 10}
+  market_0:   {phone: true, noise: market, snr_db: 0}
+
+phone:
+  low_hz: 300
+  high_hz: 3400
+  codec_rate: 8000
+
+packet_loss:
+  frame_ms: 20
+
+asr:
+  # language_code per manifest lang, per model family
+  lang_codes:
+    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN}
+    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN"}
+  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi}
+  # Static domain context (NOT derived from per-clip references -> no leakage)
+  context:
+    topic: "Indian bank customer-care call about loan EMI, account, KYC and payment due dates"
+    keyterms: ["EMI", "KYC", "loan", "account", "payment", "due date", "UPI", "credit card", "आधार", "पैन कार्ड", "रुपये", "किस्त"]
+
+noisy_conditions: [traffic_10, traffic_5, market_10, market_0]
