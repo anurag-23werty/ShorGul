@@ -96,9 +96,33 @@ def enhance() -> None:
 
 
 @app.command()
-def run() -> None:
-    """(Phase 3)"""
-    raise typer.Exit("not implemented yet")
+def run(
+    models: str = typer.Option("prisma-v2.5,prisma-v3.0,whisper-small", help="Comma list of models"),
+    conditions: str = typer.Option(None, help="Comma list (default: all)"),
+    variants: str = typer.Option("raw", help="raw,denoised,context"),
+    langs: str = typer.Option(None, help="Only these langs (hi,bn,ta,hinglish)"),
+    clips: str = typer.Option(None, help="Only these clip_ids"),
+    max_calls: int = typer.Option(0, help="Max NEW billed (Gnani) calls. 0 = cache only"),
+    mock: bool = typer.Option(False, help="Fake transcripts; no API, separate results/mock/"),
+    dry_run: bool = typer.Option(False, help="Only count cached vs needed calls"),
+) -> None:
+    """Transcribe degraded audio with each model (cache-first) -> results/hyps.parquet."""
+    from shorgul.asr.runner import build_jobs, run_jobs, save_hyps
+
+    df = read_manifest()
+    if langs:
+        df = df[df["lang"].isin(_split(langs))]
+    if clips:
+        df = df[df["clip_id"].isin(_split(clips))]
+    conds = _split(conditions) or list(load_config()["conditions"])
+    jobs = build_jobs(df, _split(models), conds, _split(variants))
+    print(f"[run] {len(jobs)} jobs ({'MOCK' if mock else 'REAL'}), max billed calls = {max_calls}")
+    hyps = run_jobs(jobs, mock=mock, max_calls=max_calls, dry_run=dry_run)
+    if not dry_run:
+        out = save_hyps(hyps, mock)
+        print(f"[run] {len(hyps)} rows -> {out}")
+        if len(hyps):
+            print(hyps.groupby(["model", "status"]).size().to_string())
 
 
 @app.command()
