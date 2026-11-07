@@ -66,7 +66,11 @@ def _bars(ax, table: pd.DataFrame, conds: list[str]) -> None:
     width = 0.8 / max(len(cols), 1)
     for i, col in enumerate(cols):
         xs = [x + (i - (len(cols) - 1) / 2) * width for x in range(len(conds))]
-        ax.bar(xs, table.reindex(conds)[col].values, width=width * 0.9, color=SERIES_COLORS[col], label=col)
+        vals = table.reindex(conds)[col].values
+        ax.bar(xs, vals, width=width * 0.9, color=SERIES_COLORS[col], label=col)
+        for x, v in zip(xs, vals):
+            if v == 0:  # a zero bar is invisible: say it, so 0 isn't read as "not run"
+                ax.text(x, 0.01, "0", ha="center", va="bottom", fontsize=7, color=INK2)
     ax.set_xticks(range(len(conds)), conds, rotation=30, ha="right")
 
 
