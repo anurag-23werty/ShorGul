@@ -12,6 +12,7 @@ def test_normalize_punct_digits_danda():
     assert normalize_text("Hello  WORLD!") == "hello world"
     assert normalize_text("ফ্রেব্রুয়ারি।") == "ফ্রেব্রুয়ারি"
     assert normalize_text("फ़रवरी") == normalize_text("फरवरी")
+    assert normalize_text("एजेंसियाँ") == normalize_text("एजेंसियां")
 
 
 def test_romanize_hinglish_mixed_script():

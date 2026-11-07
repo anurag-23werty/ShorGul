@@ -22,8 +22,13 @@ def normalize_text(s: str) -> str:
     s = unicodedata.normalize("NFC", s or "").translate(_NATIVE_DIGITS)
     s = _DIGIT_COMMA.sub("", s)
     s = "".join(ch if _keep(ch) else " " for ch in s)
-    # nukta-free forms so "फ़रवरी" == "फरवरी"
-    s = unicodedata.normalize("NFC", unicodedata.normalize("NFD", s).replace("़", ""))
+    # Spelling variants, not recognition errors:
+    #  - Devanagari nukta dropped: "फ़रवरी" == "फरवरी" (U+093C). Not for Bengali, where য়/ড়/ঢ়
+    #    are distinct letters.
+    #  - chandrabindu -> anusvara: "एजेंसियाँ" == "एजेंसियां" (U+0901 -> U+0902, U+0981 -> U+0982)
+    s = unicodedata.normalize("NFD", s)
+    s = s.replace("़", "").replace("ँ", "ं").replace("ঁ", "ং")
+    s = unicodedata.normalize("NFC", s)
     return " ".join(s.lower().split())
 
 
