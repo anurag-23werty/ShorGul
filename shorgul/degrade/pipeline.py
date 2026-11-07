@@ -55,9 +55,10 @@ def degrade_all(manifest: pd.DataFrame, conditions: list[str], force: bool = Fal
     log = pd.DataFrame(logs)
     if len(log):
         lp = path("degraded") / "degrade_log.csv"
+        full = log
         if lp.exists():
             old = pd.read_csv(lp)
-            log = pd.concat([old.merge(log[["clip_id", "condition"]], how="left", indicator=True)
-                             .query("_merge=='left_only'").drop(columns="_merge"), log], ignore_index=True)
-        log.to_csv(lp, index=False)
-    return log
+            full = pd.concat([old.merge(log[["clip_id", "condition"]], how="left", indicator=True)
+                              .query("_merge=='left_only'").drop(columns="_merge"), log], ignore_index=True)
+        full.to_csv(lp, index=False)
+    return log  # only the files written in this call
