@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+data/clean/*.wav
+data/degraded/
+data/noise/*.wav
+results/cache.sqlite
+*.pyc
+data/enhanced/
+results/mock/
+results/*.parquet
+.pytest_cache/
+.DS_Store

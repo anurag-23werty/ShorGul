@@ -1,0 +1,17 @@
+numpy
+scipy
+soundfile
+pandas
+pyarrow
+pyyaml
+typer
+requests
+python-dotenv
+jiwer
+huggingface_hub
+noisereduce
+faster-whisper
+indic-transliteration
+streamlit
+matplotlib
+pytest
