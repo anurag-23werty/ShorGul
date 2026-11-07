@@ -90,9 +90,23 @@ def degrade(
 
 
 @app.command()
-def enhance() -> None:
-    """(Phase 4)"""
-    raise typer.Exit("not implemented yet")
+def enhance(
+    conditions: str = typer.Option(None, help="Comma list (default: noisy_conditions)"),
+    langs: str = typer.Option(None, help="Only these langs"),
+    clips: str = typer.Option(None, help="Only these clip_ids"),
+    force: bool = typer.Option(False, help="Rebuild existing files"),
+) -> None:
+    """Denoise degraded audio (spectral gating) -> data/enhanced/{condition}/{clip_id}.wav."""
+    from shorgul.enhance.denoise import enhance_all
+
+    df = read_manifest()
+    if langs:
+        df = df[df["lang"].isin(_split(langs))]
+    if clips:
+        df = df[df["clip_id"].isin(_split(clips))]
+    conds = _split(conditions) or load_config()["noisy_conditions"]
+    n = enhance_all(df, conds, force=force)
+    print(f"[enhance] {len(df)} clips x {len(conds)} conditions -> {n} new files")
 
 
 @app.command()
@@ -126,9 +140,28 @@ def run(
 
 
 @app.command()
-def score() -> None:
-    """(Phase 4)"""
-    raise typer.Exit("not implemented yet")
+def score(
+    mock: bool = typer.Option(False, help="Score results/mock/ instead of real results"),
+    charts: bool = typer.Option(True, help="Also render README charts"),
+) -> None:
+    """Score hyps.parquet -> results.parquet (per row) + summary.csv (corpus-level per group)."""
+    from shorgul.asr.runner import results_dir
+    from shorgul.metrics.aggregate import RESULT_COLS, score_rows, summarize
+
+    rdir = results_dir(mock)
+    hyps = pd.read_parquet(rdir / "hyps.parquet")
+    scored = score_rows(hyps)
+    scored.to_parquet(rdir / "scored_full.parquet", index=False)
+    scored[RESULT_COLS].to_parquet(rdir / "results.parquet", index=False)
+    summ = summarize(scored)
+    summ.to_csv(rdir / "summary.csv", index=False)
+    print(f"[score] {len(scored)} rows -> {rdir / 'results.parquet'}")
+    with pd.option_context("display.width", 160, "display.max_rows", 60):
+        print(summ.to_string(index=False))
+    if charts:
+        from shorgul.metrics.charts import render_charts
+        for p in render_charts(summ, rdir / "charts"):
+            print(f"[chart] {p}")
 
 
 if __name__ == "__main__":

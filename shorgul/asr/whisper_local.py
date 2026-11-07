@@ -25,8 +25,9 @@ class WhisperASR:
 
     def transcribe(self, audio: bytes, params: dict[str, Any]) -> ASRResult:
         wav = read_bytes(audio)
+        model = self.model  # load outside the timed region
         t0 = time.perf_counter()
-        segs, _ = self.model.transcribe(
+        segs, _ = model.transcribe(
             wav, language=params["language"], beam_size=params.get("beam_size", 5),
             temperature=0.0, condition_on_previous_text=False, vad_filter=False)
         text = " ".join(s.text.strip() for s in segs).strip()
