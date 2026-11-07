@@ -65,6 +65,9 @@ Every clip × condition is **deterministic**: seed = `sha256(clip_id | condition
   `format=transcribe` (ITN) for these clips. FLEURS clips use `format=verbatim`.
 - **Runaway rate**: the share of hypotheses more than 2× longer than the reference, counted in words or characters.
   This catches Whisper's repetition loops under heavy noise.
+- **Wrong-script rate**: the share of hypotheses whose letters are mostly outside the language's
+  own script. For example, Whisper-small often writes Bengali speech in Devanagari: phonetically close,
+  but useless downstream.
 
 ## Results
 

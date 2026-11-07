@@ -40,3 +40,12 @@ def test_entities():
     assert entity_hit("25", "25 तारीख को")
     assert entity_hit_rate("₹4,500;5 मार्च", "₹4,500 की 6 मार्च") == 0.5
     assert math.isnan(entity_hit_rate("", "x"))
+
+
+def test_wrong_script():
+    from shorgul.metrics.aggregate import wrong_script
+    assert wrong_script("जार्मनेर औनेक बेक्करा", "bn")
+    assert not wrong_script("জার্মানির অনেক", "bn")
+    assert not wrong_script("इसका EMI", "hi")
+    assert not wrong_script("anything", "hinglish")
+    assert not wrong_script("", "ta")

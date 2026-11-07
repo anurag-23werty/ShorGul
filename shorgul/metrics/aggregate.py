@@ -10,6 +10,18 @@ from shorgul.metrics.wer_cer import prep, wer_cer
 RESULT_COLS = ["clip_id", "lang", "source", "condition", "variant", "model", "reference",
                "hypothesis", "wer", "cer", "entity_hit_rate", "latency_s", "status"]
 GROUP = ["lang", "model", "variant", "condition"]
+SCRIPT_RANGES = {"hi": ("\u0900", "\u097f"), "bn": ("\u0980", "\u09ff"), "ta": ("\u0b80", "\u0bff")}
+
+
+def wrong_script(hypothesis: str, lang: str) -> bool:
+    """True if most letters of the hypothesis are outside the language's own script (e.g. Bengali in Devanagari)."""
+    if lang not in SCRIPT_RANGES:
+        return False
+    letters = [c for c in hypothesis if c.isalpha() or "\u0900" <= c <= "\u0dff"]
+    if not letters:
+        return False
+    lo, hi = SCRIPT_RANGES[lang]
+    return sum(lo <= c <= hi for c in letters) / len(letters) < 0.5
 
 
 def score_rows(hyps: pd.DataFrame) -> pd.DataFrame:
@@ -27,6 +39,7 @@ def score_rows(hyps: pd.DataFrame) -> pd.DataFrame:
     # hallucination / repetition loops: hypothesis >2x longer than the reference (words or chars)
     out["runaway"] = ((np.array([len(h.split()) for h in hyp_norm]) > 2 * out["ref_words"])
                       | (np.array([len(h) for h in hyp_norm]) > 2 * out["ref_chars"]))
+    out["wrong_script"] = [wrong_script(h, l) for h, l in zip(out["hypothesis"], out["lang"])]
     return out
 
 
@@ -41,6 +54,7 @@ def summarize(scored: pd.DataFrame) -> pd.DataFrame:
             "median_wer": g["wer"].median(),
             "entity_hit_rate": g["entity_hit_rate"].mean(),
             "runaway_rate": g["runaway"].mean(),
+            "wrong_script_rate": g["wrong_script"].mean(),
             "latency_s": g["latency_s"].median(),
         })
 
