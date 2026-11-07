@@ -87,6 +87,16 @@ def results_dir(mock: bool) -> Path:
     return path("results") / ("mock" if mock else "")
 
 
+def _log_error(job: Job, res, mock: bool) -> None:
+    """Persist failed-call details (server message only; the API key is never part of res.raw)."""
+    out = results_dir(mock) / "errors.jsonl"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    rec = {"clip_id": job.row["clip_id"], "condition": job.condition, "variant": job.variant,
+           "model": job.model, "status": res.status, "detail": res.raw}
+    with open(out, "a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+
 def run_jobs(jobs: list[Job], mock: bool, max_calls: int, dry_run: bool = False,
              backends: dict[str, ASRBackend] | None = None, cache: Cache | None = None) -> pd.DataFrame:
     cache = cache or Cache.default(mock)
@@ -115,6 +125,8 @@ def run_jobs(jobs: list[Job], mock: bool, max_calls: int, dry_run: bool = False,
             if res.cacheable:
                 cache.put(key, job.model, job.params, {"transcript": res.transcript, "raw": res.raw},
                           res.status, res.latency_s)
+            if not res.status.startswith("ok"):
+                _log_error(job, res, mock)
             hit = {"response": {"transcript": res.transcript}, "status": res.status, "latency_s": res.latency_s}
             print(f"[run] {i + 1}/{len(jobs)} {job.model} {job.row['clip_id']} {job.condition}/{job.variant}"
                   f" -> {res.status} ({res.latency_s}s)")

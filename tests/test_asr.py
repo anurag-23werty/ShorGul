@@ -117,3 +117,21 @@ def test_mock_is_deterministic_and_degrades():
 def test_auth_error_not_cached():
     assert not ASRResult("", "error_401", 0).cacheable
     assert ASRResult("", "error_400", 0).cacheable
+
+
+class FailingBackend(CountingBackend):
+    def transcribe(self, audio, params):
+        self.n += 1
+        return ASRResult("", "error_403", 0.1, {"body": "forbidden"})
+
+
+def test_errors_logged_not_cached(tmp_path, monkeypatch):
+    import shorgul.asr.runner as runner
+    monkeypatch.setattr(runner, "results_dir", lambda mock: tmp_path)
+    cache, be = Cache(tmp_path / "c.sqlite"), FailingBackend()
+    jobs = _jobs(tmp_path, n=1)
+    run_jobs(jobs, mock=False, max_calls=5, backends={"prisma-v3.0": be}, cache=cache)
+    run_jobs(jobs, mock=False, max_calls=5, backends={"prisma-v3.0": be}, cache=cache)
+    assert be.n == 2  # 403 is not cached -> retried on the next run
+    log = (tmp_path / "errors.jsonl").read_text()
+    assert "error_403" in log and SECRET not in log

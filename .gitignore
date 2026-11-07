@@ -11,3 +11,4 @@ results/mock/
 results/*.parquet
 .pytest_cache/
 .DS_Store
+results/errors.jsonl
