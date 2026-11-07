@@ -1,10 +1,12 @@
 """Gnani Prisma STT client (v2.5 default, v3.0 via model=prisma-v3.0). Sequential, with backoff."""
 from __future__ import annotations
 
+import io
 import time
 from typing import Any
 
 import requests
+import soundfile as sf
 
 from shorgul.asr.base import ASRResult
 from shorgul.config import api_key
@@ -30,6 +32,23 @@ class PrismaASR:
         return data
 
     def transcribe(self, audio: bytes, params: dict[str, Any]) -> ASRResult:
+        res = self._transcribe(audio, "audio.wav", "audio/wav", params)
+        if res.status == "error_403":
+            # 403 on one specific file = byte-pattern false positive upstream. Resend once as FLAC:
+            # lossless, so the model hears identical samples; only the container bytes differ.
+            flac = self._to_flac(audio)
+            res = self._transcribe(flac, "audio.flac", "audio/flac", params)
+            res.raw["sent_as"] = "flac_after_403"
+        return res
+
+    @staticmethod
+    def _to_flac(wav: bytes) -> bytes:
+        data, sr = sf.read(io.BytesIO(wav), dtype="int16")
+        buf = io.BytesIO()
+        sf.write(buf, data, sr, format="FLAC", subtype="PCM_16")
+        return buf.getvalue()
+
+    def _transcribe(self, audio: bytes, filename: str, mime: str, params: dict[str, Any]) -> ASRResult:
         data = self.form_fields(params)
         headers = {"X-API-Key-ID": api_key()}
         last = "failed"
@@ -39,7 +58,7 @@ class PrismaASR:
             t0 = time.perf_counter()
             try:
                 r = self.session.post(STT_URL, headers=headers, data=data, timeout=90,
-                                      files={"audio_file": ("audio.wav", audio, "audio/wav")})
+                                      files={"audio_file": (filename, audio, mime)})
             except requests.RequestException as e:
                 last = f"failed: {type(e).__name__}"
                 continue

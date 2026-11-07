@@ -23,7 +23,7 @@ class FakeSession:
         self.responses, self.calls = list(responses), []
 
     def post(self, url, headers=None, data=None, files=None, timeout=None):
-        self.calls.append({"headers": headers, "data": data})
+        self.calls.append({"headers": headers, "data": data, "filename": files["audio_file"][0]})
         return self.responses.pop(0)
 
 
@@ -135,3 +135,25 @@ def test_errors_logged_not_cached(tmp_path, monkeypatch):
     assert be.n == 2  # 403 is not cached -> retried on the next run
     log = (tmp_path / "errors.jsonl").read_text()
     assert "error_403" in log and SECRET not in log
+
+
+def _wav_bytes():
+    import io
+    import numpy as np
+    import soundfile as sf
+    buf = io.BytesIO()
+    sf.write(buf, (np.sin(np.arange(1600) / 5) * 0.3).astype("float32"), 16000, format="WAV", subtype="PCM_16")
+    return buf.getvalue()
+
+
+def test_403_falls_back_to_lossless_flac_once():
+    sess = FakeSession([FakeResp(403, text="forbidden"), FakeResp(200, {"transcript": "ok text"})])
+    res = PrismaASR("prisma-v3.0", session=sess, sleep=lambda s: None).transcribe(_wav_bytes(), {})
+    assert res.status == "ok" and res.raw["sent_as"] == "flac_after_403"
+    assert [c["filename"] for c in sess.calls] == ["audio.wav", "audio.flac"]
+
+
+def test_403_twice_gives_up():
+    sess = FakeSession([FakeResp(403), FakeResp(403)])
+    res = PrismaASR("prisma-v3.0", session=sess, sleep=lambda s: None).transcribe(_wav_bytes(), {})
+    assert res.status == "error_403" and len(sess.calls) == 2
