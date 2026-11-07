@@ -54,12 +54,16 @@ if source == "mock":
     st.warning("MOCK data: synthetic transcripts for pipeline testing, not real model output.")
 
 # --- headline tiles -----------------------------------------------------------
-clean = view[view["condition"] == "clean"].groupby("series")["wer"].mean()
-worst = view[view["condition"] == "market_0"].groupby("series")["wer"].mean()
-tiles = st.columns(max(len(clean), 1))
-for col, (s, w) in zip(tiles, clean.items()):
-    col.metric(f"{s}: clean WER", f"{w:.1%}",
-               delta=f"{worst.get(s, float('nan')) - w:+.1%} at market_0", delta_color="inverse")
+# Like-for-like only: FLEURS languages (same sentences for every model), raw/denoised variant.
+fleurs = view[(view["lang"] != "hinglish") & (view["variant"] == variant)]
+clean = fleurs[fleurs["condition"] == "clean"].groupby("series")["wer"].mean()
+worst = fleurs[fleurs["condition"] == "market_0"].groupby("series")["wer"].mean()
+if len(clean):
+    st.caption("Mean WER over the selected FLEURS languages (Hindi/Bengali/Tamil): clean, and change at market_0")
+    tiles = st.columns(len(clean))
+    for col, (s, w) in zip(tiles, clean.items()):
+        col.metric(s, f"{w:.1%}", delta=f"{worst.get(s, float('nan')) - w:+.1%} at market_0",
+                   delta_color="inverse")
 
 # --- WER vs condition ---------------------------------------------------------
 st.subheader("WER by condition")
