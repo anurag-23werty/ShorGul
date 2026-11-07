@@ -68,9 +68,25 @@ def prepare(
 
 
 @app.command()
-def degrade() -> None:
-    """(Phase 2)"""
-    raise typer.Exit("not implemented yet")
+def degrade(
+    conditions: str = typer.Option(None, help="Comma list (default: all in bench.yaml)"),
+    langs: str = typer.Option(None, help="Only these langs"),
+    clips: str = typer.Option(None, help="Only these clip_ids"),
+    force: bool = typer.Option(False, help="Rebuild existing files"),
+) -> None:
+    """Apply telephony conditions to clean clips -> data/degraded/{condition}/{clip_id}.wav."""
+    from shorgul.degrade.pipeline import degrade_all
+
+    df = read_manifest()
+    if langs:
+        df = df[df["lang"].isin(_split(langs))]
+    if clips:
+        df = df[df["clip_id"].isin(_split(clips))]
+    conds = _split(conditions) or list(load_config()["conditions"])
+    log = degrade_all(df, conds, force=force)
+    print(f"[degrade] {len(df)} clips x {len(conds)} conditions -> {len(log)} new files")
+    if len(log):
+        print(log.to_string(index=False))
 
 
 @app.command()
