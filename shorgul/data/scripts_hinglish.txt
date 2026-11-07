@@ -1,0 +1,26 @@
+# id|text|entities (";"-separated). Hindi in Devanagari, English terms in Latin.
+hg_000|नमस्ते सर, आपकी loan EMI ₹4,500 की 5 मार्च को due है।|₹4,500;5 मार्च
+hg_001|आपके credit card का outstanding amount ₹12,300 है, please 10 अप्रैल तक pay कर दीजिए।|₹12,300;10 अप्रैल
+hg_002|मैंने 2 फरवरी को ₹2,000 का UPI payment किया था लेकिन वो reflect नहीं हो रहा।|2 फरवरी;₹2,000
+hg_003|आपका KYC 15 जून तक update करना ज़रूरी है, वरना account freeze हो जाएगा।|15 जून
+hg_004|हमने आपके account में ₹750 का refund 20 जनवरी को process कर दिया है।|₹750;20 जनवरी
+hg_005|मेरी personal loan की EMI ₹8,200 है, क्या मैं इसे 25 तारीख को shift कर सकता हूँ?|₹8,200;25
+hg_006|आपका insurance premium ₹15,000 का 1 जुलाई को renew होगा।|₹15,000;1 जुलाई
+hg_007|सर, आपके savings account में minimum balance ₹10,000 maintain करना होगा।|₹10,000
+hg_008|मेरे account से ₹3,999 का unknown transaction 18 अगस्त को हुआ है, please check कीजिए।|₹3,999;18 अगस्त
+hg_009|आपकी home loan की अगली किस्त ₹22,000 की 7 सितंबर को कटेगी।|₹22,000;7 सितंबर
+hg_010|late payment charge ₹500 लगा है क्योंकि EMI 3 अक्टूबर को bounce हो गई थी।|₹500;3 अक्टूबर
+hg_011|मुझे अपने debit card की limit ₹50,000 तक बढ़वानी है।|₹50,000
+hg_012|आपका electricity bill ₹1,850 का है और due date 12 नवंबर है।|₹1,850;12 नवंबर
+hg_013|हमारे records के हिसाब से आपने 30 दिसंबर को ₹6,000 cash withdraw किया था।|30 दिसंबर;₹6,000
+hg_014|आपकी fixed deposit ₹1,00,000 की 9 मई को mature हो रही है।|₹1,00,000;9 मई
+hg_015|मेरा mobile recharge ₹299 का fail हो गया पर पैसे कट गए।|₹299
+hg_016|आपके pending dues ₹7,450 हैं, क्या आप आज payment link पर pay करना चाहेंगे?|₹7,450
+hg_017|मैडम, आपकी credit card की annual fee ₹999 अगले महीने 14 तारीख को charge होगी।|₹999;14
+hg_018|मेरी gold loan का interest ₹2,750 है, मैं 28 फरवरी तक जमा कर दूँगा।|₹2,750;28 फरवरी
+hg_019|आपका cheque ₹35,000 का 21 मार्च को clear हो जाएगा।|₹35,000;21 मार्च
+hg_020|मुझे अपनी two wheeler loan का foreclosure amount जानना है, लगभग ₹40,000 बाकी है।|₹40,000
+hg_021|आपके account पर ₹250 का SMS charge 31 मई को लगा था।|₹250;31 मई
+hg_022|सर, आपकी EMI ₹11,111 auto debit से 16 जून को कट जाएगी।|₹11,111;16 जून
+hg_023|मैंने 8 जुलाई को branch में ₹5,500 जमा किए थे लेकिन passbook में entry नहीं है।|8 जुलाई;₹5,500
+hg_024|आपको ₹1,200 का cashback 19 अगस्त तक आपके wallet में मिल जाएगा।|₹1,200;19 अगस्त
