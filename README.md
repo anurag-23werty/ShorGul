@@ -71,12 +71,72 @@ Every clip × condition is **deterministic**: seed = `sha256(clip_id | condition
 
 ## Results
 
-> Real-API results are filled in after the approved runs: `results/charts/*.png`,
-> `results/summary.csv`.
+100 clips × 7 conditions × 3 models, plus denoised and context variants: **3,475 transcripts, 0 failed**.
+Full numbers are in `results/summary.csv`, and per-clip rows in `results/results.parquet`.
 
 ![WER by condition](results/charts/wer_by_condition.png)
+
+**Corpus WER, clean → `market_0` (0 dB crowd noise through a phone line):**
+
+| | Hindi | Bengali | Tamil | Hinglish* |
+|---|---|---|---|---|
+| Prisma v2.5 | **7.1% → 13.2%** | **13.1% → 18.7%** | **21.3% → 32.5%** | 62.1% → 65.4% |
+| Prisma v3.0 | 9.0% → 21.3% | 13.8% → 27.5% | 25.9% → 41.2% | 38.2% → 40.9% |
+| Prisma v3.0 + context | – | – | – | **36.7% → 38.8%** |
+| Whisper-small | 79.3% → 97.5% | 108% → 123% | 73.5% → 111% | 61.5% → 105% |
+
+\*Hinglish WER is computed after romanization and is approximate (see Metrics). Use the entity table below for Hinglish.
+
 ![Entity hit rate](results/charts/entity_hit_rate.png)
+
+**Hinglish entity hit rate** (did `₹4,500` and `5 मार्च` come out in usable written form?):
+
+| | clean | market_0 |
+|---|---|---|
+| Prisma v3.0 | **96%** | **96%** |
+| Prisma v3.0 + context | 92% | 92% |
+| Whisper-small | 22% | 12% |
+| Prisma v2.5 (`en-IN`) | 0% | 0% |
+
 ![Denoise effect](results/charts/denoise_delta.png)
+
+### Findings
+
+1. **The phone line itself is almost free for Prisma.** Band-limiting, 8 kHz μ-law and 5% packet
+   loss move Prisma's WER by at most 2.4 points (v2.5: at most 0.9). Both Prisma models stay nearly flat
+   through `traffic_5` and `market_10` (within 4 points of clean). Only **0 dB babble** (`market_0`) breaks
+   them.
+   Babble sits in the speech band and survives the 300–3400 Hz channel, while traffic
+   rumble mostly doesn't.
+2. **On verbatim read speech, v2.5 beats v3.0, and the gap widens in noise** (Hindi `market_0`:
+   13.2% vs 21.3%). Error diffs show that v3.0 splits and merges compounds differently (Tamil
+   "சுட்டுக் கொல்லப்பட்டார்") and misrecognizes more words under 0 dB babble. CER shows the same
+   ordering, so this isn't a word-boundary artifact.
+3. **For call-centre entities, v3.0 is the only usable model.** Its `format=transcribe` writes
+   amounts and dates as `4,500 रुपये` and `5 March`. That gives 96% entity accuracy, **identical
+   from clean to 0 dB market noise**. v2.5 with `en-IN` returns *romanized* Hindi number words
+   ("chaar hazaar paanch sau rupay"), which English number normalization can't convert, so its
+   entity accuracy is 0%. Whisper-small writes numbers as words: 22% → 12%.
+4. **Domain context helps words, not numbers.** Keyterms fixed `ईएमआई → EMI` and lowered Hinglish
+   WER at every condition (38.2% → 36.7% clean, 40.9% → 38.8% at `market_0`). But on one clip, number formatting
+   wasn't applied with context ("चालीस हज़ार" instead of "40,000"), so entity accuracy dipped 96% → 92%.
+5. **Classic denoising hurts on real speech.** On recorded FLEURS speech, spectral gating on the
+   received audio raised Prisma's WER in 22 of 24 language × model × noise cells. It was unchanged
+   in one and 0.8 points lower in one. The worst case was +7.4 points (Hindi, `market_0`, both models). It also
+   cut Whisper's Hinglish entity accuracy at `market_0` from 12% to 4%. The one exception is
+   *synthetic* Hinglish speech with v3.0 (−9.1 points at `market_0`). Clean TTS voices are easy to
+   separate from noise, so that result likely won't transfer to real callers. Modern ASR models are trained
+   on noisy audio, and gating strips cues they rely on. *Don't put a generic denoiser in front of Prisma.*
+6. **Whisper-small isn't a viable baseline for Indic telephony.** It writes Bengali speech in
+   Devanagari 99% of the time, falls into repetition loops in 4–10% of clips, and runs at
+   ~6.7 s per clip on CPU. Prisma's median API round-trip is ~0.3 s.
+
+Remaining errors that a CRM would feel (Prisma v3.0, clean): `18 अगस्त → 1 August` and
+`31 मई → 3/1/May`. Number formatting writes a malformed date even when the words are heard correctly.
+
+**Reliability note:** 3 requests (one clip, clean audio only) returned `403` for its WAV bytes.
+They were resent once as lossless FLAC (identical samples) and succeeded. These rows are marked
+`sent_as: flac_after_403` in the cache.
 
 ## Quickstart
 
