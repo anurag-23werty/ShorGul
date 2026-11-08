@@ -80,3 +80,37 @@ def test_long_digital_silence_is_not_packet_loss():
     x = _speech()
     x[16000:24000] = 0  # 500 ms VAD-gated silence in the middle
     assert check(x).dropout_pct < 0.5
+
+
+def test_quick_audit_mock_and_billing(tmp_path):
+    from shorgul.asr.base import ASRResult
+    from shorgul.asr.cache import Cache
+    from shorgul.audit.quick import load_clip, quick_audit
+    noises = {"traffic": np.random.default_rng(7).standard_normal(16000 * 8).astype(np.float32) * 0.1,
+              "market": np.random.default_rng(8).standard_normal(16000 * 8).astype(np.float32) * 0.1}
+    audio = _speech()
+    res = quick_audit(audio, "hinglish", "prisma-v3.0", mock=True, cache=Cache(tmp_path / "m.sqlite"), noises=noises)
+    assert [r["condition"] for r in res.rows] == ["original", "phone", "loss_5", "traffic_5", "market_0"]
+    assert res.billed_calls == 0 and res.grade in "ABCDF"
+
+    class Billed:
+        billed, name, n = True, "prisma-v3.0", 0
+
+        def transcribe(self, audio, params):
+            Billed.n += 1
+            return ASRResult("₹4,500 की 5 मार्च", "ok", 0.1)
+
+    c = Cache(tmp_path / "r.sqlite")
+    first = quick_audit(audio, "hinglish", "prisma-v3.0", mock=False, backend=Billed(), cache=c, noises=noises)
+    again = quick_audit(audio, "hinglish", "prisma-v3.0", mock=False, backend=Billed(), cache=c, noises=noises)
+    assert first.billed_calls == 5 and again.billed_calls == 0 and Billed.n == 5  # cache: never billed twice
+    with pytest.raises(ValueError, match="30"):
+        load_clip(_wav(np.zeros(16000 * 31, dtype=np.float32)))
+
+
+def _wav(x):
+    import io
+    import soundfile as sf
+    b = io.BytesIO()
+    sf.write(b, x, 16000, format="WAV", subtype="PCM_16")
+    return b.getvalue()
