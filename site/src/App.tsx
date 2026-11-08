@@ -6,7 +6,7 @@ import { Finding } from "./components/Finding";
 import { Fix } from "./components/Fix";
 import { Hero } from "./components/Hero";
 import { Pipeline } from "./components/Pipeline";
-import { Users } from "./components/Users";
+import { ConditionsCarousel, FindingsCarousel, UsersCarousel } from "./components/Carousels";
 import type { Data } from "./lib/data";
 import { loadData } from "./lib/data";
 import { ScrollTrigger, startSmoothScroll } from "./lib/motion";
@@ -30,10 +30,12 @@ export default function App() {
       <Hero data={data} />
       <main>
         <CallScene data={data} />
+        <ConditionsCarousel data={data} />
         <Finding data={data} />
         <Fix data={data} />
         <Curves data={data} />
-        <Users data={data} />
+        <FindingsCarousel data={data} />
+        <UsersCarousel data={data} />
         <Pipeline data={data} />
       </main>
       <Close data={data} />

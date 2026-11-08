@@ -27,6 +27,7 @@ from shorgul.degrade.codecs import ffmpeg_pipe  # noqa: E402
 from shorgul.entities.lexicon import CURRENCY, DAY_WORDS, MONTHS, NUMBERS, SCALES  # noqa: E402
 from shorgul.entities.repair import _key, repair  # noqa: E402
 from shorgul.metrics.entities import entity_hit, parse_entities  # noqa: E402
+from shorgul.report.tables import findings_rows  # noqa: E402
 from shorgul.stats.bootstrap import ci, paired  # noqa: E402
 
 RES = ROOT / "results"
@@ -314,11 +315,56 @@ def terminals() -> dict:
             t["output"] = [ln.replace("cap 0 billed", "cap " + t["command"].split()[-1] + " billed") for ln in t["output"]
                            if not ln.startswith("[run] new billed") and not ln.startswith("[plan]")
                            and "report ->" not in ln]
+        for t in (voicebot, solutions):
+            t["table"] = audit_table(t["output"])
         return {"voicebot_golive": voicebot, "solutions_deal": solutions, "release_gate_entity": gate,
                 "release_gate_wer": gate_wer,
                 "note": "Captured by running the real CLI against the result cache (no API calls). Paths shortened."}
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+COND_CARDS = [  # (condition id, label, what it is) - one real FLEURS Hindi clip rendered in each
+    ("clean", "Clean", "16 kHz recording, no phone line"),
+    ("phone", "Phone line", "300–3400 Hz band-pass, 8 kHz G.711 μ-law"),
+    ("amrnb_mobile", "AMR-NB mobile", "real 3GPP mobile codec at 12.2 kbps"),
+    ("opus_voip", "Opus VoIP", "WhatsApp-style call at 8 kbps"),
+    ("loss_5", "Packet loss", "5% of 20 ms frames dropped (zero-filled)"),
+    ("traffic_5", "Street traffic", "noise at 5 dB SNR, then the phone line"),
+    ("market_0", "Market, 0 dB", "crowd babble as loud as the speech"),
+]
+COND_CLIP = "hi_003"
+
+
+def condition_cards(s: pd.DataFrame, c: pd.DataFrame) -> dict:
+    cards = []
+    for cid, label, desc in COND_CARDS:
+        src = ROOT / "data" / "degraded" / cid / f"{COND_CLIP}.wav"
+        encode_mp3(src, OUT / "audio" / f"cond_{cid}.mp3")
+        wer = {}
+        for model in ("prisma-v2.5", "prisma-v3.0"):
+            r = s[(s.lang == "hi") & (s.model == model) & (s.variant == "raw") & (s.condition == cid)].iloc[0]
+            vc = None if cid == "clean" else comp_row(c, comparison=f"{cid} vs clean", lang="hi", metric="wer",
+                                                       A=f"{model}/raw@{cid}")
+            wer[model] = {"value": r4(r.wer), "lo": r4(r.wer_lo), "hi": r4(r.wer_hi), "vs_clean": vc}
+        cards.append({"id": cid, "label": label, "desc": desc, "audio": f"audio/cond_{cid}.mp3",
+                      "peaks": peaks(read_wav(src), 120), "wer": wer})
+    return {"clip": COND_CLIP, "lang": "hi", "source": "FLEURS (CC BY 4.0)", "cards": cards,
+            "note": "WER is corpus WER over all 25 Hindi FLEURS clips, 95% CI; the audio is one of those clips."}
+
+
+def audit_table(lines: list[str]) -> list[dict]:
+    """Parse the per-condition rows of a captured `shorgul audit` output."""
+    rows = []
+    for ln in lines:
+        parts = ln.split()
+        if len(parts) == 7 and parts[4] in "ABCDF":
+            try:
+                rows.append({"condition": parts[0], "stability": float(parts[1]), "grade": parts[4],
+                             "entities_kept": float(parts[5]), "n": int(parts[6])})
+            except ValueError:
+                pass
+    return rows
 
 
 def pipeline_counts(sc: pd.DataFrame) -> dict:
@@ -348,6 +394,8 @@ def main() -> None:
         "terminals": terminals(),
         "pipeline": pipeline_counts(sc),
         "validation": json.loads((RES / "validation.json").read_text()),
+        "conditions": condition_cards(s, c),
+        "findings": findings_rows(s, c, RES),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")

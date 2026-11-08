@@ -109,7 +109,13 @@ def repair_table(s: pd.DataFrame, c: pd.DataFrame) -> str:
 
 
 def findings_table(s: pd.DataFrame, c: pd.DataFrame, results_dir: Path) -> str:
-    """The README's headline findings: one row each, number with 95% CI, and the test behind it."""
+    out = ["| finding | number (95% CI) | test |", "|---|---|---|"]
+    out += [f"| {r['finding']} | {r['md']} | {r['test']} |" for r in findings_rows(s, c, results_dir)]
+    return "\n".join(out)
+
+
+def findings_rows(s: pd.DataFrame, c: pd.DataFrame, results_dir: Path) -> list[dict]:
+    """Headline findings, one dict each: finding, big (the number), rest, md (table cell), test."""
     import json
 
     from shorgul.stats.bootstrap import paired
@@ -125,56 +131,73 @@ def findings_table(s: pd.DataFrame, c: pd.DataFrame, results_dir: Path) -> str:
         f = (lambda x: f"{x * 100:+.{d}f}") if sign else (lambda x: f"{x * 100:.{d}f}")
         return f"{f(pt)} [{f(lo)}, {f(hi)}]"
 
-    rows.append(("One API setting decides whether amounts survive (Hinglish, same audio)",
-                 f"Prisma v2.5 entity accuracy, `hi-IN` − `en-IN`: **{ci_s(cfg.point, cfg.lo, cfg.hi, sign=True)} pts**",
-                 f"paired bootstrap, {cfg.n_clips} clips × all conditions"))
+    def add(finding, big, rest, test, md=None):
+        rows.append({"finding": finding, "big": big, "rest": rest, "test": test,
+                     "md": md or f"**{big}** {rest}".strip()})
+
+    add("One API setting decides whether amounts survive (Hinglish, same audio)",
+        f"{cfg.point * 100:+.1f} pts", f"Prisma v2.5 entity accuracy, hi-IN vs en-IN, CI [{cfg.lo * 100:+.1f}, {cfg.hi * 100:+.1f}]",
+        f"paired bootstrap, {cfg.n_clips} clips × all conditions",
+        md=f"Prisma v2.5 entity accuracy, `hi-IN` − `en-IN`: **{ci_s(cfg.point, cfg.lo, cfg.hi, sign=True)} pts**")
     deg = c[c.comparison.str.endswith("vs clean") & (c.metric == "wer") & c.A.str.startswith("prisma")
             & c.lang.isin(["hi", "bn", "ta", "hinglish"])]
     non0, m0 = deg[deg.condition != "market_0"], deg[deg.condition == "market_0"]
-    rows.append(("Phone line, AMR-NB, Opus, packet loss, traffic, 10 dB market",
-                 f"no significant WER change in **{(non0.verdict == 'no significant change').sum()} of {len(non0)}** "
-                 "Prisma model × language × condition cells", "paired bootstrap vs clean, same clips"))
-    rows.append(("0 dB market babble", f"significant WER increase in **{(m0.verdict != 'no significant change').sum()} of {len(m0)}** "
-                 f"Prisma cells (+{m0['diff'].min() * 100:.1f} to +{m0['diff'].max() * 100:.1f} pts)", "paired bootstrap vs clean"))
+    k0 = int((non0.verdict == "no significant change").sum())
+    add("Phone line, AMR-NB, Opus, packet loss, traffic, 10 dB market", f"{k0} of {len(non0)}",
+        "Prisma model × language × condition cells show no significant WER change", "paired bootstrap vs clean, same clips",
+        md=f"no significant WER change in **{k0} of {len(non0)}** Prisma model × language × condition cells")
+    k1 = int((m0.verdict != "no significant change").sum())
+    add("0 dB market babble", f"{k1} of {len(m0)}",
+        f"Prisma cells get significantly worse (+{m0['diff'].min() * 100:.1f} to +{m0['diff'].max() * 100:.1f} pts WER)",
+        "paired bootstrap vs clean",
+        md=f"significant WER increase in **{k1} of {len(m0)}** Prisma cells (+{m0['diff'].min() * 100:.1f} to +{m0['diff'].max() * 100:.1f} pts)")
     for lang, name in (("hi", "Hindi"), ("bn", "Bengali"), ("ta", "Tamil")):
         q = c[(c.comparison == "v3.0 vs v2.5") & (c.metric == "wer") & (c.lang == lang) & (c.condition == "ALL")]
         if len(q):
             q = q.iloc[0]
-            rows.append((f"Prisma v3.0 vs v2.5, read speech ({name})", f"WER {ci_s(q['diff'], q.lo, q.hi, sign=True)} pts "
-                         f"(v3.0 − v2.5)", "paired bootstrap, all conditions"))
+            add(f"Prisma v3.0 vs v2.5, read speech ({name})", f"{q['diff'] * 100:+.1f} pts",
+                f"WER, v3.0 − v2.5, CI [{q.lo * 100:+.1f}, {q.hi * 100:+.1f}]", "paired bootstrap, all conditions",
+                md=f"WER {ci_s(q['diff'], q.lo, q.hi, sign=True)} pts (v3.0 − v2.5)")
     for m, label in (("wer_cn", "currency-neutral WER"), ("entity_hit_rate", "entity accuracy")):
         q = c[(c.comparison == "v3.0 matched vs v2.5 matched") & (c.metric == m) & (c.condition == "ALL")].iloc[0]
-        rows.append((f"Prisma v3.0 vs v2.5, Hinglish, same config ({label})", f"{ci_s(q['diff'], q.lo, q.hi, sign=True)} pts: "
-                     f"{'tie' if 'tie' in q.verdict else q.verdict}", "paired bootstrap"))
+        verdict = "tie" if "tie" in q.verdict else q.verdict
+        add(f"Prisma v3.0 vs v2.5, Hinglish, same config ({label})", verdict,
+            f"{q['diff'] * 100:+.1f} pts, CI [{q.lo * 100:+.1f}, {q.hi * 100:+.1f}]", "paired bootstrap",
+            md=f"{ci_s(q['diff'], q.lo, q.hi, sign=True)} pts: {verdict}")
     d = c[c.comparison.str.endswith("denoised vs raw") & (c.condition == "ALL") & (c.metric == "wer")
           & c.A.str.startswith("prisma") & (c.lang != "hinglish")]
-    rows.append(("Generic denoiser (spectral gating) before Prisma", f"WER significantly higher in **{d.verdict.str.contains('raw better').sum()} "
-                 f"of {len(d)}** Prisma × language cells", "paired bootstrap, noisy conditions pooled"))
+    k2 = int(d.verdict.str.contains("raw better").sum())
+    add("Generic denoiser (spectral gating) before Prisma", f"{k2} of {len(d)}",
+        "Prisma × language cells get significantly higher WER", "paired bootstrap, noisy conditions pooled",
+        md=f"WER significantly higher in **{k2} of {len(d)}** Prisma × language cells")
     for x in v.get("heldout", []):
         if "en-IN" in x["system"]:
             r = x["held_rep"]
-            rows.append(("Entity repair on unseen lines (Prisma v2.5 `en-IN` output)", f"0% → **{ci_s(*r, d=0)}%** entity accuracy",
-                         f"held-out: {v['heldout_lines']} lines committed before any audio existed"))
+            add("Entity repair on unseen lines (Prisma v2.5 en-IN output)", f"{r[0] * 100:.0f}%",
+                f"entity accuracy after repair, up from 0%, CI [{r[1] * 100:.0f}, {r[2] * 100:.0f}]",
+                f"held-out: {v['heldout_lines']} lines committed before any audio existed",
+                md=f"0% → **{ci_s(*r, d=0)}%** entity accuracy")
     for rc in v.get("real_calls", []):
         if rc["model"] in ("Prisma v2.5", "Prisma v3.0"):
             a = rc["all"]
-            rows.append((f"{rc['model']} on {v['real_calls_n']} real phone calls (Gram Vaani, Hindi)", f"WER {ci_s(*a)}%",
-                         "bootstrap over calls"))
+            add(f"{rc['model']} on {v['real_calls_n']} real phone calls (Gram Vaani, Hindi)", f"{a[0] * 100:.1f}%",
+                f"WER, CI [{a[1] * 100:.1f}, {a[2] * 100:.1f}]", "bootstrap over calls", md=f"WER {ci_s(*a)}%")
     if "real_v30_minus_v25" in v:
         p = v["real_v30_minus_v25"]
-        rows.append(("Prisma v3.0 vs v2.5 on the same real calls", f"WER {ci_s(p[0], p[1], p[2], sign=True)} pts", "paired bootstrap"))
+        add("Prisma v3.0 vs v2.5 on the same real calls", f"{p[0] * 100:+.1f} pts", f"WER, v3.0 − v2.5, CI [{p[1] * 100:+.1f}, {p[2] * 100:+.1f}]",
+            "paired bootstrap", md=f"WER {ci_s(p[0], p[1], p[2], sign=True)} pts")
     w = s[(s.model == "whisper-small") & (s.variant == "raw") & (s.condition == "clean")].set_index("lang")
     for lang, name in (("hi", "Hindi"), ("ta", "Tamil")):
         if lang in w.index:
             r = w.loc[lang]
-            rows.append((f"Whisper-small, clean {name} read speech", f"WER {ci_s(r.wer, r.wer_lo, r.wer_hi)}%", "bootstrap over clips"))
+            add(f"Whisper-small, clean {name} read speech", f"{r.wer * 100:.1f}%", f"WER, CI [{r.wer_lo * 100:.1f}, {r.wer_hi * 100:.1f}]",
+                "bootstrap over clips", md=f"WER {ci_s(r.wer, r.wer_lo, r.wer_hi)}%")
     if "bn" in w.index:
         bn = s[(s.model == "whisper-small") & (s.variant == "raw") & (s.lang == "bn")]
-        rows.append(("Whisper-small, Bengali", f"writes Devanagari script in {bn.wrong_script_rate.mean() * 100:.0f}% of transcripts",
-                     "script check per transcript"))
-    out = ["| finding | number (95% CI) | test |", "|---|---|---|"]
-    out += [f"| {a} | {b} | {t} |" for a, b, t in rows]
-    return "\n".join(out)
+        ws = bn.wrong_script_rate.mean() * 100
+        add("Whisper-small, Bengali", f"{ws:.0f}%", "of transcripts are written in Devanagari script", "script check per transcript",
+            md=f"writes Devanagari script in {ws:.0f}% of transcripts")
+    return rows
 
 
 def render(results_dir: Path) -> dict[str, str]:

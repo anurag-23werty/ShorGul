@@ -1,0 +1,22 @@
+.root { position: relative; }
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+.controls { display: flex; gap: 8px; align-items: center; }
+.arrow { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--line-2); background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--ink); transition: border-color 200ms ease-out, opacity 200ms ease-out; }
+.arrow:hover:not(:disabled) { border-color: var(--ink-3); }
+.arrow:disabled { opacity: 0.35; cursor: default; }
+.arrow svg { width: 16px; height: 16px; }
+.viewport { overflow: hidden; cursor: grab; outline: none; border-radius: 12px; }
+.viewport:active { cursor: grabbing; }
+.viewport:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
+.track { display: flex; touch-action: pan-y pinch-zoom; margin-left: -16px; }
+.slide { flex: 0 0 var(--slide, 40%); min-width: 0; padding-left: 16px; }
+.foot { display: flex; align-items: center; gap: 16px; margin-top: 18px; }
+.progress { flex: 1; height: 2px; background: var(--line); border-radius: 1px; overflow: hidden; }
+.bar { height: 100%; background: var(--ink-2); transform-origin: left; transform: scaleX(0); }
+.dots { display: flex; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; border: 0; padding: 0; background: var(--line-2); cursor: pointer; transition: background-color 200ms ease-out; }
+.dot[aria-current="true"] { background: var(--ink); }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); min-width: 44px; text-align: right; }
+@media (max-width: 900px) { .slide { flex-basis: var(--slide-md, 70%); } }
+@media (max-width: 640px) { .slide { flex-basis: var(--slide-sm, 88%); } .dots { display: none; } }

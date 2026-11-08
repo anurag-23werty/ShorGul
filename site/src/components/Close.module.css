@@ -21,7 +21,6 @@
 .foot a:hover { color: var(--ink); }
 .me { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 .me strong { color: var(--ink); font-weight: 500; }
-.prov { font-family: var(--font-mono); font-size: 11px; }
 @media (max-width: 900px) {
   .close { padding: 96px 0 40px; }
   .method { margin-top: 72px; }

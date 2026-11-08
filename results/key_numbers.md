@@ -82,7 +82,7 @@
 | Prisma v3.0 vs v2.5, Hinglish, same config (currency-neutral WER) | -1.7 [-5.1, +1.7] pts: tie | paired bootstrap |
 | Prisma v3.0 vs v2.5, Hinglish, same config (entity accuracy) | +2.4 [+0.0, +6.9] pts: tie | paired bootstrap |
 | Generic denoiser (spectral gating) before Prisma | WER significantly higher in **5 of 6** Prisma × language cells | paired bootstrap, noisy conditions pooled |
-| Entity repair on unseen lines (Prisma v2.5 `en-IN` output) | 0% → **94 [90, 98]%** entity accuracy | held-out: 25 lines committed before any audio existed |
+| Entity repair on unseen lines (Prisma v2.5 en-IN output) | 0% → **94 [90, 98]%** entity accuracy | held-out: 25 lines committed before any audio existed |
 | Prisma v2.5 on 60 real phone calls (Gram Vaani, Hindi) | WER 16.1 [13.7, 19.0]% | bootstrap over calls |
 | Prisma v3.0 on 60 real phone calls (Gram Vaani, Hindi) | WER 18.9 [16.2, 22.1]% | bootstrap over calls |
 | Prisma v3.0 vs v2.5 on the same real calls | WER +2.7 [+0.3, +5.3] pts | paired bootstrap |

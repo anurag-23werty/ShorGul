@@ -4,6 +4,7 @@ import s from "./Close.module.css";
 
 const REPO = "https://github.com/anurag-23werty/ShorGul";
 const FINDING = `${REPO}/blob/main/results/finding_check.md`;
+const DASHBOARD = `${REPO}#dashboard`;   // hosted link replaces this once the dashboard is deployed
 const ME = { name: "Anurag Choudhury", github: "https://github.com/anurag-23werty", linkedin: "https://www.linkedin.com/in/anurag-choudhury-ai/" };
 
 export function Close({ data }: { data: Data }) {
@@ -12,7 +13,6 @@ export function Close({ data }: { data: Data }) {
   const v = data.validation;
   const rc25 = v.real_calls.find((r: { model: string }) => r.model === "Prisma v2.5");
   const heldRep = v.heldout.find((x: { system: string }) => x.system.includes("en-IN")).held_rep;
-  const when = new Date(data.generated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   return (
     <footer className={s.close}>
       <div className="wrap">
@@ -50,11 +50,15 @@ export function Close({ data }: { data: Data }) {
 
         <div className={s.foot}>
           <div className={s.me}>
+            <span>Built on Gnani Prisma &amp; Timbre</span>
+            <a href={REPO}>GitHub</a>
+            <a href={DASHBOARD}>Dashboard</a>
+          </div>
+          <div className={s.me}>
             <strong>{ME.name}</strong>
             <a href={ME.github}>GitHub</a>
             <a href={ME.linkedin}>LinkedIn</a>
           </div>
-          <div className={s.prov}>Every number here is generated from results/ by scripts/export_site_data.py · {when}</div>
         </div>
       </div>
     </footer>
