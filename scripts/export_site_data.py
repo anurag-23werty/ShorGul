@@ -5,6 +5,7 @@ CLI against the cache with --max-calls 0). Run:  .venv/bin/python scripts/export
 """
 from __future__ import annotations
 
+import difflib
 import json
 import re
 import shutil
@@ -22,9 +23,9 @@ sys.path.insert(0, str(ROOT))
 
 from shorgul.audio import SR, read_wav  # noqa: E402
 from shorgul.config import load_config  # noqa: E402
-from shorgul.degrade.telephony import phone_channel  # noqa: E402
-from shorgul.entities.lexicon import NUMBERS, SCALES  # noqa: E402
-from shorgul.entities.repair import repair  # noqa: E402
+from shorgul.degrade.codecs import ffmpeg_pipe  # noqa: E402
+from shorgul.entities.lexicon import CURRENCY, DAY_WORDS, MONTHS, NUMBERS, SCALES  # noqa: E402
+from shorgul.entities.repair import _key, repair  # noqa: E402
 from shorgul.metrics.entities import entity_hit, parse_entities  # noqa: E402
 from shorgul.stats.bootstrap import ci, paired  # noqa: E402
 
@@ -132,6 +133,16 @@ def degradation(s: pd.DataFrame, c: pd.DataFrame) -> dict:
             "note": "Corpus WER with 95% bootstrap CI over 25 clips. vs_clean = paired change vs clean audio."}
 
 
+def entity_by_condition(s: pd.DataFrame) -> dict:
+    """Hinglish entity accuracy per condition per system (25 clips each), for scene captions."""
+    out = {}
+    for sid, _, model, var in SYSTEMS:
+        g = s[(s["lang"] == "hinglish") & (s["model"] == model) & (s["variant"] == var)].set_index("condition")
+        out[sid] = {c: {"value": r4(g.loc[c, "entity_hit_rate"]), "lo": r4(g.loc[c, "entity_hit_rate_lo"]),
+                        "hi": r4(g.loc[c, "entity_hit_rate_hi"]), "n": int(g.loc[c, "n"])} for c in g.index}
+    return out
+
+
 def repair_block(s: pd.DataFrame, c: pd.DataFrame, sc: pd.DataFrame) -> dict:
     ok = sc[(sc["lang"] == "hinglish") & sc["status"].str.startswith("ok")]
     rows = []
@@ -151,17 +162,45 @@ def repair_block(s: pd.DataFrame, c: pd.DataFrame, sc: pd.DataFrame) -> dict:
 
 
 # ------------------------------------------------------------------ examples
-def chip_state(entity: str, hyp: str) -> dict:
-    """How a reference amount/date shows up in a transcript: written / spoken (recoverable) / garbled / missing."""
+CURRENCY_WORDS = {_key(w) for w in CURRENCY}
+ANCHOR_WORDS = {_key(w) for w in DAY_WORDS} | {_key(w) for ws in MONTHS.values() for w in ws}
+NUMBER_KEYS = {_key(w) for w in NUMBER_WORDS}
+
+
+def _span(entity: str, hyp: str) -> tuple[str, str | None]:
+    """(state, the words the chip shows) for ONE reference entity in ONE transcript."""
+    toks = hyp.split()
+    keys = [_key(t) for t in toks]
+    digits = re.sub(r"[^\d]", "", entity.split()[0])
+    is_amount = entity.startswith("₹")
+    anchors = CURRENCY_WORDS if is_amount else ANCHOR_WORDS
     if entity_hit(entity, hyp):
-        state = "written"
-    elif entity_hit(entity, repair(hyp)):
-        state = "spoken"
-    elif any(w.strip("।,.") in NUMBER_WORDS for w in hyp.split()):
-        state = "garbled"
-    else:
-        state = "missing"
-    return {"entity": entity, "state": state, "after_repair": entity_hit(entity, repair(hyp))}
+        for i, t in enumerate(toks):
+            if re.sub(r"[^\d]", "", t) == digits:
+                j = i + 1 if i + 1 < len(toks) and keys[i + 1] in CURRENCY_WORDS else i
+                return "written", " ".join(toks[i:j + 1]).strip("।,.")
+        return "written", entity
+    rep = repair(hyp)
+    if entity_hit(entity, rep):
+        sm = difflib.SequenceMatcher(a=toks, b=rep.split(), autojunk=False)
+        for op, i1, i2, j1, j2 in sm.get_opcodes():
+            if op == "replace" and digits in re.sub(r"[^\d]", "", " ".join(rep.split()[j1:j2])):
+                return "spoken", " ".join(toks[i1:i2])
+        return "spoken", None
+    for i, k in enumerate(keys):  # number words right before this entity's anchor (currency / month / तारीख)
+        if k in anchors:
+            j = i
+            while j > 0 and keys[j - 1] in NUMBER_KEYS:
+                j -= 1
+            if j < i:
+                return "garbled", " ".join(toks[j:i + 1]).strip("।,.")
+    return "missing", None
+
+
+def chip_state(entity: str, hyp: str) -> dict:
+    """How a reference amount/date shows up: written / spoken (recoverable) / garbled / missing, + shown words."""
+    state, shown = _span(entity, hyp)
+    return {"entity": entity, "state": state, "shown": shown, "after_repair": entity_hit(entity, repair(hyp))}
 
 
 def peaks(x: np.ndarray, bins: int = 480) -> list[float]:
@@ -183,6 +222,14 @@ def bands(x: np.ndarray, t_bins: int = 96, edges=(0, 300, 600, 1200, 2000, 3000,
     return {"edges_hz": list(edges), "db": rows}
 
 
+def bandpass_only(x: np.ndarray) -> np.ndarray:
+    """The 300-3400 Hz band-pass alone (same filters as the phone channel, without 8 kHz mu-law)."""
+    bp = "highpass=f=300,highpass=f=300,lowpass=f=3400,lowpass=f=3400"
+    y = np.frombuffer(ffmpeg_pipe(x.astype(np.float32), ["-f", "f32le", "-ar", "16000", "-ac", "1"],
+                                  ["-af", bp, "-f", "f32le"]), dtype=np.float32)
+    return y[: len(x)]
+
+
 def encode_mp3(src: Path, dst: Path) -> None:
     dst.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(src), "-ac", "1", "-ar", "22050",
@@ -196,7 +243,7 @@ def examples(sc: pd.DataFrame) -> list[dict]:
         ref = rows.iloc[0]["reference"]
         ents = parse_entities(rows.iloc[0]["entities"])
         clean = read_wav(ROOT / "data" / "degraded" / "clean" / f"{cid}.wav")
-        band_only = phone_channel(clean)  # visual stage only; ASR was run on the real conditions below
+        band_only = bandpass_only(clean)  # visual stage only (no mu-law); ASR was run on the real conditions below
         stages = {
             "clean": clean,
             "phone": read_wav(ROOT / "data" / "degraded" / "phone" / f"{cid}.wav"),
@@ -216,8 +263,8 @@ def examples(sc: pd.DataFrame) -> list[dict]:
         out.append({
             "clip_id": cid, "reference": ref, "entities": ents, "duration_s": round(len(clean) / SR, 2),
             "audio": {"clean": f"audio/{cid}_clean.mp3", EXAMPLE_COND: f"audio/{cid}_{EXAMPLE_COND}.mp3"},
-            "waveform": {k: peaks(v) for k, v in stages.items()} | {"bandlimit_visual": peaks(band_only)},
-            "spectrum": {k: bands(v) for k, v in stages.items()},
+            "waveform": {k: peaks(v) for k, v in stages.items()} | {"bandpass": peaks(band_only)},
+            "spectrum": {k: bands(v) for k, v in stages.items()} | {"bandpass": bands(band_only)},
             "transcripts": transcripts,
             "note": f"Real transcripts for clean, phone (300-3400 Hz + 8 kHz mu-law) and {EXAMPLE_COND} "
                     "(market babble at 10 dB acoustic SNR, then the phone channel).",
@@ -293,6 +340,8 @@ def main() -> None:
         "ci": "95% percentile bootstrap over clips, 1,000 resamples; comparisons are paired",
         "headline": headline(s, c, sc),
         "rankings": rankings(sc),
+        "entity_by_condition": entity_by_condition(s),
+        "systems": [{"id": a, "label": b, "model": m, "variant": v} for a, b, m, v in SYSTEMS],
         "degradation": degradation(s, c),
         "repair": repair_block(s, c, sc),
         "examples": examples(sc),

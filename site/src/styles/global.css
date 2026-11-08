@@ -1,0 +1,36 @@
+:root {
+  --bg: #0b0b0c;
+  --ink: #ededed;
+  --ink-2: #a1a1a6;
+  --ink-3: #6e6e73;
+  --line: #232326;
+  --line-2: #2f2f33;
+  --panel: #121214;
+  --accent: #ff6a1a;      /* signal recovered: correct entities and the fix, nothing else */
+  --error: #e5484d;       /* errors only */
+  --font-head: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Noto Sans Devanagari", ui-monospace, monospace;
+  --font-deva: "Noto Sans Devanagari", "Geist", sans-serif;
+  --max: 1100px;
+  --gutter: 24px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font-family: var(--font-head);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+::selection { background: var(--accent); color: #0b0b0c; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+@media (max-width: 640px) { :root { --gutter: 16px; } body { font-size: 16px; } }

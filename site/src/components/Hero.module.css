@@ -1,0 +1,39 @@
+.hero { padding: 120px 0 72px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; justify-content: space-between; align-items: center; margin-bottom: 96px; }
+.logo { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+.logo b { color: var(--ink-3); font-weight: 400; }
+.navlinks { display: flex; gap: 20px; font-size: 14px; color: var(--ink-2); }
+.navlinks a { text-decoration: none; }
+.navlinks a:hover { color: var(--ink); }
+.h1 {
+  font-size: clamp(40px, 6.4vw, 76px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 600;
+  margin: 0; max-width: 13ch;
+}
+.sub { margin: 28px 0 0; max-width: 56ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); }
+.sub strong { color: var(--ink); font-weight: 500; }
+.num { font-family: var(--font-mono); color: var(--ink); white-space: nowrap; }
+.ci { font-family: var(--font-mono); font-size: 0.8em; color: var(--ink-3); white-space: nowrap; }
+.actions { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border-radius: 8px;
+  border: 1px solid var(--line-2); background: transparent; text-decoration: none; cursor: pointer; font-size: 15px;
+  transition: border-color 200ms ease-out, background-color 200ms ease-out;
+}
+.btn:hover { border-color: var(--ink-3); }
+.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 500; }
+.primary:hover { background: #fff; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.wave { margin-top: 72px; }
+.waveSvg { display: block; width: 100%; height: 120px; }
+.wavePath { fill: var(--ink); opacity: 0.85; transition: opacity 300ms ease-out; }
+.playhead { stroke: var(--ink); stroke-width: 1; opacity: 0; }
+.playing .playhead { opacity: 1; }
+.caption { display: flex; justify-content: space-between; gap: 16px; margin-top: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+.state { color: var(--ink-2); }
+@media (max-width: 640px) {
+  .hero { padding: 40px 0 48px; }
+  .brand { margin-bottom: 64px; }
+  .navlinks { gap: 14px; }
+  .wave { margin-top: 48px; }
+  .waveSvg { height: 84px; }
+}
