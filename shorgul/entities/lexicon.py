@@ -8,7 +8,7 @@ NUMBERS: dict[int, tuple[list[str], list[str]]] = {
     1: (["एक"], ["ek", "one"]), 2: (["दो"], ["do", "two"]), 3: (["तीन", "थीन"], ["teen", "tin", "three"]),
     4: (["चार"], ["char", "chaar", "four"]), 5: (["पांच", "पाँच", "पाच", "पाज"], ["paanch", "panch", "five"]),
     6: (["छह", "छः", "छे", "छै"], ["chhah", "chhe", "chah", "chhey", "six"]), 7: (["सात", "साथ"], ["saat", "sat", "seven"]),
-    8: (["आठ"], ["aath", "ath", "eight"]), 9: (["नौ"], ["nau", "nou", "nine"]), 10: (["दस"], ["das", "dus", "ten"]),
+    8: (["आठ"], ["aath", "ath", "eight"]), 9: (["नौ", "नो"], ["nau", "nou", "nao", "nine"]), 10: (["दस"], ["das", "dus", "ten"]),
     11: (["ग्यारह"], ["gyarah", "gyara", "eleven"]), 12: (["बारह", "बारा"], ["barah", "bara", "baarah", "twelve"]),
     13: (["तेरह"], ["terah", "tera"]), 14: (["चौदह"], ["chaudah", "chauda", "chodah"]),
     15: (["पंद्रह", "पन्द्रह", "पंद्रा"], ["pandrah", "pandra", "fifteen"]), 16: (["सोलह"], ["solah", "sola"]),

@@ -27,6 +27,7 @@ CONVERT = [
     ("साथ सो पचास रपे", "₹750"),
     ("पंद्रह हाजार रुपे", "₹15,000"),
     ("एक लाख रुपये", "₹1,00,000"),
+    ("ऐसो दो हजार रुपये", "ऐसो ₹2,000"),                         # a word merely ending in सो doesn't block
     ("दो सौ पचास रुपए", "₹250"),
     # --- currency normalization of digits ---
     ("4,500 रुपये की", "₹4,500 की"),
@@ -57,6 +58,8 @@ CONVERT = [
 ]
 
 KEEP = [  # ambiguous or non-entity: must NOT be converted
+    "xyzz sau ninyanave rupay",    # unparseable head: never convert just the tail into a wrong amount (₹99)
+    "नोसो निन्यानवे रुपे",            # Whisper's merged "नौसौ": same rule
     "do teen log aaye the",
     "kar do",
     "please kar do na",

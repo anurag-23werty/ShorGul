@@ -154,6 +154,16 @@ def _parse(toks: list[Tok], i: int) -> Phrase | None:
     return Phrase(total + cur, j, has_scale, singles if len(singles) == 2 else [])
 
 
+def _ends_in_scale(core: str) -> bool:
+    """Previous token is, or ends in, a scale word ("sau", "नोसो" = नौ+सौ merged by the ASR)."""
+    k = _key(core)
+    if not k:
+        return False
+    t = _tables()
+    return k in t["scales"] or any(k.endswith(sc) and k[: -len(sc)] in t["units"] for sc in t["scales"]
+                                   if len(sc) >= 2 and _DEVA.search(sc))  # merged unit+scale, e.g. नो+सो
+
+
 def _month_of(tok: Tok, after_number: bool) -> int | None:
     k = _key(tok.core)
     m = _tables()["months"].get(k)
@@ -179,6 +189,11 @@ def repair(text: str) -> str:
     while i < len(toks):
         tok = toks[i]
         ph = _parse(toks, i)
+        prev_scale = i > 0 and _ends_in_scale(toks[i - 1].core)
+        if ph is not None and prev_scale:
+            # the number started earlier but its head didn't parse ("xyz sau ninyanave"): converting only the
+            # tail would invent a wrong amount, so leave the whole thing as spoken
+            ph = None
         if ph is None:
             out.append(tok.raw)
             i += 1
