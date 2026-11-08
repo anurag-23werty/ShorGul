@@ -93,10 +93,14 @@ Full numbers are in `results/summary.csv`, and per-clip rows in `results/results
 
 | | clean | market_0 |
 |---|---|---|
-| Prisma v3.0 | **96%** | **96%** |
+| Prisma v3.0 (`hi-IN,en-IN`) | **96%** | **96%** |
+| Prisma v2.5 (`hi-IN`, matched) | **94%** | **92%** |
 | Prisma v3.0 + context | 92% | 92% |
 | Whisper-small | 22% | 12% |
 | Prisma v2.5 (`en-IN`) | 0% | 0% |
+
+The v3.0 vs v2.5 (`hi-IN`) difference isn't significant (paired bootstrap, 95% CI [+0.0, +6.6] pts).
+The 0% row is a **config effect, not a model limit**. See [`results/finding_check.md`](results/finding_check.md).
 
 ![Denoise effect](results/charts/denoise_delta.png)
 
@@ -112,11 +116,12 @@ Full numbers are in `results/summary.csv`, and per-clip rows in `results/results
    13.2% vs 21.3%). Error diffs show that v3.0 splits and merges compounds differently (Tamil
    "சுட்டுக் கொல்லப்பட்டார்") and misrecognizes more words under 0 dB babble. CER shows the same
    ordering, so this isn't a word-boundary artifact.
-3. **For call-centre entities, v3.0 is the only usable model.** Its `format=transcribe` writes
-   amounts and dates as `4,500 रुपये` and `5 March`. That gives 96% entity accuracy, **identical
-   from clean to 0 dB market noise**. v2.5 with `en-IN` returns *romanized* Hindi number words
-   ("chaar hazaar paanch sau rupay"), which English number normalization can't convert, so its
-   entity accuracy is 0%. Whisper-small writes numbers as words: 22% → 12%.
+3. **The eval config picks the winner, not the model.** On identical Hinglish audio, switching
+   v2.5's `language_code` from `en-IN` to `hi-IN` moved its entity accuracy from **0% to 94%**. Under
+   that matched config, v2.5 and v3.0 are statistically tied on entities (94% vs 96%) and on
+   convention-neutral WER (32.2% vs 30.8%, CI [−4.7, +1.8] pts). The as-scored WER gap comes only from
+   v3.0 writing `4,500 रुपये` where the reference writes `₹4,500`. Both models hold entity accuracy
+   flat from clean to 0 dB market noise. Whisper-small writes numbers as words: 22% → 12%.
 4. **Domain context helps words, not numbers.** Keyterms fixed `ईएमआई → EMI` and lowered Hinglish
    WER at every condition (38.2% → 36.7% clean, 40.9% → 38.8% at `market_0`). But on one clip, number formatting
    wasn't applied with context ("चालीस हज़ार" instead of "40,000"), so entity accuracy dipped 96% → 92%.
