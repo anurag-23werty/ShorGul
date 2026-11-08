@@ -40,7 +40,8 @@ def unpaired(a: pd.DataFrame, b: pd.DataFrame, num: str, den: str) -> tuple[floa
 
 
 def main() -> None:
-    sc = pd.read_parquet(ROOT / "results" / "scored_full.parquet")
+    priv = ROOT / "results" / "private" / "scored_all.parquet"   # real-call rows are private (licence)
+    sc = pd.read_parquet(priv if priv.exists() else ROOT / "results" / "scored_full.parquet")
     sc = sc[sc["status"].str.startswith("ok")]
     out, md = {}, ["# Pilot-readiness validation", "",
                    "Four checks that replace assumptions with measurements. 95% bootstrap CIs over clips; "

@@ -18,19 +18,30 @@ def _split(s: str | None) -> list[str] | None:
     return [x.strip() for x in s.split(",") if x.strip()] if s else None
 
 
+PRIVATE_LANGS = {"hi_gv", "hinglish_human"}   # real recorded calls: never committed, reported as aggregates only
+
+
+def _private_manifest() -> Path:
+    return path("manifest").with_name("manifest_private.csv")
+
+
 def read_manifest() -> pd.DataFrame:
-    return pd.read_csv(path("manifest"), keep_default_na=False)
+    parts = [pd.read_csv(p, keep_default_na=False) for p in (path("manifest"), _private_manifest()) if p.exists()]
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=MANIFEST_COLS)
 
 
 def _merge_manifest(rows: list[dict], langs: set[str]) -> pd.DataFrame:
     new = pd.DataFrame(rows, columns=MANIFEST_COLS)
     mpath = path("manifest")
-    if mpath.exists():
+    if mpath.exists() or _private_manifest().exists():
         old = read_manifest()
         new = pd.concat([old[~old["lang"].isin(langs)], new], ignore_index=True)
     new = new.sort_values("clip_id").reset_index(drop=True)
     mpath.parent.mkdir(parents=True, exist_ok=True)
-    new.to_csv(mpath, index=False)
+    private = new["lang"].isin(PRIVATE_LANGS)
+    new[~private].to_csv(mpath, index=False)
+    if private.any() or _private_manifest().exists():
+        new[private].to_csv(_private_manifest(), index=False)
     return new
 
 
@@ -171,8 +182,11 @@ def score(
     rdir = results_dir(mock)
     hyps = pd.read_parquet(rdir / "hyps.parquet")
     scored = score_rows(hyps)
-    scored.to_parquet(rdir / "scored_full.parquet", index=False)
-    scored[RESULT_COLS].to_parquet(rdir / "results.parquet", index=False)
+    public = scored[~scored["lang"].isin(PRIVATE_LANGS)]
+    (rdir / "private").mkdir(exist_ok=True)
+    scored.to_parquet(rdir / "private" / "scored_all.parquet", index=False)   # gitignored: includes real calls
+    public.to_parquet(rdir / "scored_full.parquet", index=False)
+    public[RESULT_COLS].to_parquet(rdir / "results.parquet", index=False)
     summ = summarize(scored)
     summ.to_csv(rdir / "summary.csv", index=False)
     comp = compare(scored)

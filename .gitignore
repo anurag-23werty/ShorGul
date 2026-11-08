@@ -28,3 +28,5 @@ data/human/*.mp3
 data/human/refs.csv
 data/long/
 data/external/
+data/manifest_private.csv
+results/private/
