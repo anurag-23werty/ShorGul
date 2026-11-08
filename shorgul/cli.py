@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import typer
 
-from shorgul.config import load_config, path
+from shorgul.config import ROOT, load_config, path
 
 app = typer.Typer(add_completion=False, no_args_is_help=True)
 
@@ -41,6 +41,7 @@ def prepare(
     tts: bool = typer.Option(False, help="Also build Hinglish clips via Timbre TTS (billed)"),
     max_calls: int = typer.Option(0, help="Max NEW TTS API calls (cached lines are free)"),
     noise: bool = typer.Option(True, help="Download DEMAND noise if missing"),
+    human: bool = typer.Option(False, help="Add your recordings from data/human/ (refs.csv) as hinglish_human"),
 ) -> None:
     """Fetch FLEURS subset, (optionally) TTS Hinglish lines, noise; write manifest.csv."""
     from shorgul.data.fleurs_loader import fetch_fleurs
@@ -59,6 +60,12 @@ def prepare(
         from shorgul.data.tts_generator import generate_hinglish
         rows += generate_hinglish(clean, max_calls=max_calls, n=n)
         done_langs.add("hinglish")
+    if human:
+        from shorgul.data.human import load_human
+        got = load_human(ROOT / "data" / "human", clean)
+        print(f"[human] {len(got)} recordings -> lang=hinglish_human (reported separately from TTS)")
+        rows += got
+        done_langs.add("hinglish_human")
     if noise:
         from shorgul.data.noise_fetch import fetch_noise
         fetch_noise(path("noise"))

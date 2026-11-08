@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from shorgul.config import load_config
+from shorgul.config import is_hinglish, load_config
 from shorgul.entities.repair import repair
 from shorgul.metrics.entities import entity_hit_rate
 from shorgul.metrics.wer_cer import error_counts, prep
@@ -33,7 +33,7 @@ def score_rows(hyps: pd.DataFrame) -> pd.DataFrame:
     out = hyps.copy()
     ok = out["status"].str.startswith("ok").to_numpy()
     counts = np.array([error_counts(r, h, l) for r, h, l in zip(out["reference"], out["hypothesis"], out["lang"])])
-    cn = np.array([error_counts(r, h, l, currency_neutral=(l == "hinglish"))
+    cn = np.array([error_counts(r, h, l, currency_neutral=is_hinglish(l))
                    for r, h, l in zip(out["reference"], out["hypothesis"], out["lang"])])
     out["word_err"], out["ref_words"], out["char_err"], out["ref_chars"] = counts.T
     out["word_err_cn"], out["ref_words_cn"] = cn[:, 0], cn[:, 1]
@@ -49,7 +49,7 @@ def score_rows(hyps: pd.DataFrame) -> pd.DataFrame:
     rep = np.array([error_counts(r, h, l) for r, h, l in zip(out["reference"], out["hyp_repaired"], out["lang"])])
     out["word_err_rep"] = pd.Series(rep[:, 0], index=out.index).astype(float).where(ok)
     out["wer_rep"] = out["word_err_rep"] / out["ref_words"].clip(lower=1)
-    cn_rep = [error_counts(r, h, l, currency_neutral=(l == "hinglish"))[0]
+    cn_rep = [error_counts(r, h, l, currency_neutral=is_hinglish(l))[0]
               for r, h, l in zip(out["reference"], out["hyp_repaired"], out["lang"])]
     out["word_err_cn_rep"] = pd.Series(cn_rep, index=out.index).astype(float).where(ok)
     out["entity_hit_rate_rep"] = [entity_hit_rate(e, h) if good else np.nan
@@ -85,8 +85,9 @@ def _pairs(langs: list[str]) -> list[tuple[str, str, str, str, str, list[str]]]:
     p = [("v3.0 vs v2.5", "prisma-v3.0", "raw", "prisma-v2.5", "raw", langs),
          ("v3.0 vs whisper", "prisma-v3.0", "raw", "whisper-small", "raw", langs),
          ("v2.5 vs whisper", "prisma-v2.5", "raw", "whisper-small", "raw", langs),
-         ("v3.0 matched vs v2.5 matched", "prisma-v3.0", "matched", "prisma-v2.5", "matched", ["hinglish"]),
-         ("v3.0 context vs v3.0 raw", "prisma-v3.0", "context", "prisma-v3.0", "raw", ["hinglish"])]
+         ("v3.0 matched vs v2.5 matched", "prisma-v3.0", "matched", "prisma-v2.5", "matched",
+          [l for l in langs if is_hinglish(l)]),
+         ("v3.0 context vs v3.0 raw", "prisma-v3.0", "context", "prisma-v3.0", "raw", [l for l in langs if is_hinglish(l)])]
     for m in ["prisma-v2.5", "prisma-v3.0", "whisper-small"]:
         p.append((f"{m} denoised vs raw", m, "denoised", m, "raw", langs))
     return [(*x, noisy if "denoised" in x[0] else None) for x in p]
@@ -105,7 +106,7 @@ def compare(scored: pd.DataFrame) -> pd.DataFrame:
             if a.empty or b.empty:
                 continue
             conds = only_conds or conds_all
-            metrics = ["wer", "cer"] + (["wer_cn", "entity_hit_rate"] if lang == "hinglish" else [])
+            metrics = ["wer", "cer"] + (["wer_cn", "entity_hit_rate"] if is_hinglish(lang) else [])
             for scope in conds + ["ALL"]:
                 cs = conds if scope == "ALL" else [scope]
                 aa, bb = a[a["condition"].isin(cs)], b[b["condition"].isin(cs)]
@@ -132,7 +133,7 @@ def _repair_effect(ok: pd.DataFrame) -> list[dict]:
     out = []
     for (lang, model, variant), g in ok.groupby(["lang", "model", "variant"]):
         pairs = [("wer", "wer_rep", "word_err_rep", "word_err")]
-        if lang == "hinglish":
+        if is_hinglish(lang):
             pairs += [("wer_cn", "wer_cn_rep", "word_err_cn_rep", "word_err_cn"),
                       ("entity_hit_rate", "entity_rep", "entity_hit_rate_rep", "entity_hit_rate")]
         for metric, _, rep_col, raw_col in pairs:
@@ -157,7 +158,7 @@ def _degradation_vs_clean(ok: pd.DataFrame) -> list[dict]:
     out = []
     for (lang, model), g in ok[ok["variant"] == "raw"].groupby(["lang", "model"]):
         clean = g[g["condition"] == "clean"].assign(condition="x")
-        metrics = ["wer"] + (["wer_cn", "entity_hit_rate"] if lang == "hinglish" else [])
+        metrics = ["wer"] + (["wer_cn", "entity_hit_rate"] if is_hinglish(lang) else [])
         for cond in [c for c in load_config()["conditions"] if c != "clean"]:
             deg = g[g["condition"] == cond].assign(condition="x")
             for m in metrics:

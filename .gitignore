@@ -19,3 +19,6 @@ results/audits/*/loss_5/
 results/audits/*/traffic_*/
 results/audits/*/market_*/
 !results/scored_full.parquet
+data/human/*.wav
+data/human/*.flac
+data/human/*.ogg

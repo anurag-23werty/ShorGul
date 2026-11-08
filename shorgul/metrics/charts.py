@@ -22,7 +22,8 @@ ENTITY_SERIES = {("prisma-v2.5", "raw"): "prisma-v2.5 (en-IN)", ("prisma-v2.5", 
 ENTITY_COLORS = {"prisma-v2.5 (en-IN)": "#a9c8ef", "prisma-v2.5 (hi-IN)": "#2a78d6", "prisma-v3.0": "#eb6834",
                  "prisma-v3.0 + context": "#eda100", "whisper-small": "#1baf7a"}
 INK, INK2, GRID, SURFACE = "#0b0b0b", "#52514e", "#e6e5e0", "#fcfcfb"
-LANG_NAMES = {"hi": "Hindi", "bn": "Bengali", "ta": "Tamil", "hinglish": "Hinglish (call-centre)"}
+LANG_NAMES = {"hi": "Hindi", "bn": "Bengali", "ta": "Tamil", "hinglish": "Hinglish (call-centre, TTS)",
+              "hinglish_human": "Hinglish (human validation)"}
 
 
 def _style(ax) -> None:

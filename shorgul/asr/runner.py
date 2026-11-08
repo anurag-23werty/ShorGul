@@ -13,7 +13,7 @@ import pandas as pd
 
 from shorgul.asr.base import ASRBackend, MockASR
 from shorgul.asr.cache import Cache, asr_key
-from shorgul.config import load_config, path
+from shorgul.config import is_hinglish, load_config, path
 
 MODELS = ["prisma-v2.5", "prisma-v3.0", "whisper-small"]
 VARIANTS = ["raw", "denoised", "context", "matched"]
@@ -58,9 +58,9 @@ def applies(model: str, variant: str, condition: str, row: dict) -> bool:
     if variant == "denoised":
         return condition in cfg["noisy_conditions"]
     if variant == "context":
-        return model == "prisma-v3.0" and row["lang"] == "hinglish"
+        return model == "prisma-v3.0" and is_hinglish(row["lang"])
     if variant == "matched":
-        return model.startswith("prisma") and row["lang"] == "hinglish"
+        return model.startswith("prisma") and is_hinglish(row["lang"])
     return True
 
 

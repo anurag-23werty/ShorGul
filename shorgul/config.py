@@ -31,6 +31,12 @@ def seed_for(clip_id: str, condition: str) -> int:
     return int(digest[:8], 16)
 
 
+def is_hinglish(lang: str) -> bool:
+    """Hinglish behaviour (romanized WER, currency-neutral WER, entity metrics) for TTS and human sets alike.
+    Reporting keeps them apart: "hinglish" = TTS benchmark, "hinglish_human" = human validation recordings."""
+    return str(lang).startswith("hinglish")
+
+
 def api_key() -> str:
     load_dotenv(ROOT / ".env")
     key = os.environ.get("GNANI_API_KEY", "").strip()

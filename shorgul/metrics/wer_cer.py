@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import jiwer
 
+from shorgul.config import is_hinglish
 from shorgul.metrics.normalize import normalize_text, romanize
 
 
 def prep(text: str, lang: str) -> str:
-    return romanize(text) if lang == "hinglish" else normalize_text(text)
+    return romanize(text) if is_hinglish(lang) else normalize_text(text)
 
 
 def wer_cer(reference: str, hypothesis: str, lang: str) -> tuple[float, float]:

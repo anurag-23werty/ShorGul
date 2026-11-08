@@ -59,7 +59,7 @@ def quick_audit(audio: np.ndarray, lang: str, model: str, mock: bool, key: str |
             from shorgul.asr.prisma import PrismaASR
             backend = PrismaASR(model, key=key)
     cache = cache or Cache.default(mock)
-    params = params_for(model, {"lang": lang, "has_entities": lang == "hinglish"}, "raw")
+    params = params_for(model, {"lang": lang, "has_entities": lang.startswith("hinglish")}, "raw")
     rows, billed = [], 0
     for cond in ["original", *conds]:
         b = _wav_bytes(audio if cond == "original" else degrade_audio(audio, "upload", cond, noises)[0])
