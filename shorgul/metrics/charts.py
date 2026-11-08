@@ -136,9 +136,53 @@ def denoise_delta(comparisons: pd.DataFrame | None, out: Path) -> Path | None:
     return out
 
 
+def repair_effect(summary: pd.DataFrame, out: Path, comparisons: pd.DataFrame | None = None) -> Path | None:
+    """Hinglish entity accuracy before vs after entity repair, pooled over the 7 conditions."""
+    h = summary[(summary["lang"] == "hinglish") & summary["entity_rep"].notna()].copy()
+    if h.empty:
+        return None
+    h["series"] = [ENTITY_SERIES.get((m, v)) for m, v in zip(h["model"], h["variant"])]
+    h = h[h["series"].notna()]
+    g = h.groupby("series")[["entity_hit_rate", "entity_rep"]].mean()
+    key = {v: f"{m}/{var}+repair" for (m, var), v in ENTITY_SERIES.items()}
+    ci_txt: dict[str, str] = {}
+    if comparisons is not None and not comparisons.empty:
+        c = comparisons[(comparisons["comparison"] == "repaired vs raw") & (comparisons["lang"] == "hinglish")
+                        & (comparisons["metric"] == "entity_hit_rate") & (comparisons["condition"] == "ALL")]
+        for s_, k in key.items():
+            r = c[c["A"] == k]
+            if len(r):
+                r = r.iloc[0]
+                ci_txt[s_] = f"   Δ {r['diff'] * 100:+.0f} pts [{r.lo * 100:+.0f}, {r.hi * 100:+.0f}]"
+    order = [s for s in ENTITY_COLORS if s in g.index]
+    fig, ax = plt.subplots(figsize=(8, 3.6), facecolor=SURFACE)
+    _style(ax)
+    y = range(len(order))
+    for i, s in enumerate(order):
+        before, after = g.loc[s, "entity_hit_rate"], g.loc[s, "entity_rep"]
+        ax.plot([before, after], [i, i], color=GRID, linewidth=3, zorder=1)
+        ax.scatter([before], [i], s=60, color=SURFACE, edgecolor=ENTITY_COLORS[s], linewidth=2, zorder=2)
+        ax.scatter([after], [i], s=60, color=ENTITY_COLORS[s], edgecolor=SURFACE, linewidth=1.5, zorder=3)
+        ax.text(max(before, after) + 0.02, i, f"{before:.0%} → {after:.0%}{ci_txt.get(s, '')}",
+                va="center", fontsize=8, color=INK)
+    ax.set_yticks(list(y), order, fontsize=8)
+    ax.set_xlim(0, 1.45)
+    ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.grid(axis="x", color=GRID, linewidth=0.8)
+    ax.grid(axis="y", visible=False)
+    ax.set_xlabel("Hinglish entity accuracy, mean of 7 conditions (○ raw, ● repaired); "
+                  "Δ = paired bootstrap, 95% CI",
+                  color=INK2, fontsize=9)
+    fig.tight_layout()
+    fig.savefig(out, dpi=160, facecolor=SURFACE)
+    plt.close(fig)
+    return out
+
+
 def render_charts(summary: pd.DataFrame, out_dir: Path, comparisons: pd.DataFrame | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     made = [wer_by_condition(summary, out_dir / "wer_by_condition.png"),
             entity_hits(summary, out_dir / "entity_hit_rate.png"),
-            denoise_delta(comparisons, out_dir / "denoise_delta.png")]
+            denoise_delta(comparisons, out_dir / "denoise_delta.png"),
+            repair_effect(summary, out_dir / "repair_effect.png", comparisons)]
     return [p for p in made if p is not None]

@@ -80,11 +80,38 @@ def degradation_table(c: pd.DataFrame) -> str:
     return "\n".join(out)
 
 
+def repair_table(s: pd.DataFrame, c: pd.DataFrame) -> str:
+    """Hinglish: entity accuracy and WER, raw vs entity-repaired, pooled over all 7 conditions (paired)."""
+    rows = [("Prisma v2.5 (`en-IN`)", "prisma-v2.5", "raw"), ("Prisma v2.5 (`hi-IN`)", "prisma-v2.5", "matched"),
+            ("Prisma v3.0", "prisma-v3.0", "raw"), ("Prisma v3.0 + context", "prisma-v3.0", "context"),
+            ("Whisper-small", "whisper-small", "raw")]
+    out = ["| model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | "
+           "Δ WER currency-neutral |", "|---|---|---|---|---|"]
+    for label, model, var in rows:
+        g = s[(s.lang == "hinglish") & (s.model == model) & (s.variant == var)]
+        if g.empty:
+            continue
+        cc = c[(c.comparison == "repaired vs raw") & (c.lang == "hinglish") & (c.condition == "ALL")
+               & (c.A == f"{model}/{var}+repair")]
+
+        def cell(metric: str) -> str:
+            r = cc[cc.metric == metric]
+            if r.empty:
+                return "–"
+            r = r.iloc[0]
+            star = "" if r.verdict == "no significant change" else " *"
+            return f"{r['diff'] * 100:+.1f} [{r.lo * 100:+.1f}, {r.hi * 100:+.1f}]{star}"
+
+        out.append(f"| {label} | {g.entity_hit_rate.mean() * 100:.0f}% → {g.entity_rep.mean() * 100:.0f}% | "
+                   f"{cell('entity_hit_rate')} | {cell('wer')} | {cell('wer_cn')} |")
+    return "\n".join(out)
+
+
 def render(results_dir: Path) -> dict[str, str]:
     s = pd.read_csv(results_dir / "summary.csv")
     c = pd.read_csv(results_dir / "comparisons.csv")
     return {"wer": wer_table(s), "entity": entity_table(s), "claims": claims_table(c),
-            "degradation": degradation_table(c)}
+            "degradation": degradation_table(c), "repair": repair_table(s, c)}
 
 
 def update_readme(readme: Path, tables: dict[str, str]) -> list[str]:
