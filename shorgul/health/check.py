@@ -94,7 +94,10 @@ def nearest_condition(h: Health, profiles: pd.DataFrame) -> str:
         return "loss_5"
     if h.hf_ratio >= WIDEBAND_HF:
         return "clean"
-    cands = profiles[~profiles["condition"].isin(["clean", "loss_5"])]
+    # codec-only conditions (opus_voip) look like a clean phone line to these features: never guess them
+    from shorgul.config import load_config
+    codec_only = [c for c, spec in load_config()["conditions"].items() if (spec or {}).get("codec")]
+    cands = profiles[~profiles["condition"].isin(["clean", "loss_5", *codec_only])]
     if cands.empty:
         return "phone"
     return str(cands.loc[(cands["snr_db"] - h.snr_db).abs().idxmin(), "condition"])
