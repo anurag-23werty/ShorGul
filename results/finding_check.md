@@ -42,12 +42,14 @@ formatting can't convert that. With `hi-IN`, the same model writes "₹4,500".
 
 ### Same config, same audio: v3.0 − v2.5 (paired bootstrap over clips, 1,000 resamples, 95% CI)
 
+These are the official values from `results/comparisons.csv` (Phase B scorer), pooled over all 7 conditions.
+
 | metric | difference | 95% CI | significant? |
 |---|---|---|---|
-| WER, as scored | +5.9 pts | [+2.6, +9.3] | yes, v2.5 "wins" |
-| CER, as scored | +10.9 pts | [+9.2, +12.4] | yes, v2.5 "wins" |
-| **WER, currency convention neutralized** | **−1.4 pts** | **[−4.7, +1.8]** | **no, tie** |
-| entity accuracy | +2.6 pts | [+0.0, +6.6] | no, tie |
+| WER, as scored | +5.9 pts | [+2.6, +9.2] | yes, v2.5 "wins" |
+| CER, as scored | +10.6 pts | [+8.7, +12.3] | yes, v2.5 "wins" |
+| **WER, currency convention neutralized** | **−1.4 pts** | **[−4.8, +2.0]** | **no, tie** |
+| entity accuracy | +2.6 pts | [+0.0, +7.1] | no, tie |
 
 **Why the as-scored WER gap disappears:** our references write amounts as `₹4,500`. v2.5 (`hi-IN`)
 writes `₹4,500` too. v3.0 writes `4,500 रुपये`, which is just as correct, but "रुपये" counts as an inserted
@@ -69,7 +71,7 @@ The digits are heard but formatted wrongly. That's exactly what a post-processor
 ## 4. What still stands from the earlier results
 
 - **FLEURS (verbatim, matched config):** v2.5 has lower WER than v3.0 in all three languages, with
-  the gap widening at market_0. Confidence intervals come in Phase B, so treat this as provisional until then.
+  the gap widening at market_0. Phase B confirmed it with paired tests: significant pooled over conditions in all three languages, and a tie on clean Bengali.
 - **Both Prisma models are flat through the phone channel** and break only at 0 dB babble.
 - **Whisper-small, denoising and wrong-script findings** are unaffected by this check.
 
