@@ -17,7 +17,9 @@ export function Fix({ data }: { data: Data }) {
   const root = useRef<HTMLElement>(null);
   const bars = useRef<HTMLDivElement>(null);
   const sys: RepairSys[] = data.repair.systems;
-  const reg = data.repair.regressions;
+  const val = data.validation;
+  const held = val.heldout.find((x: { system: string }) => x.system.includes("en-IN"));
+  const heldN = val.heldout_lines;
 
   useEffect(() => {
     if (reduced) return;
@@ -45,8 +47,11 @@ export function Fix({ data }: { data: Data }) {
             currency word, month or तारीख anchors them. <code>do teen log</code> and <code>kar do</code> stay untouched.
           </p>
           <p className={s.small}>
-            0 regressions on {reg.transcripts.toLocaleString("en-IN")} transcripts. The rules were written while reading
-            this same benchmark, so the gains below are in-sample; expect less on new calls.
+            The bars below are the set the rules were written on (in-sample). On {heldN} held-out lines written before any
+            audio existed, repair took Prisma v2.5 en-IN from {pct(held.held_raw[0])} to{" "}
+            <b className={s.held}>{pct(held.held_rep[0])} [{pct(held.held_rep[1])}, {pct(held.held_rep[2])}]</b>.{" "}
+            {val.repair_entity_regressions} entity regressions across {val.transcripts_total.toLocaleString("en-IN")} transcripts,
+            including {val.real_calls_n} real phone calls.
           </p>
         </div>
         <div className={s.right}>

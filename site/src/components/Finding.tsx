@@ -55,7 +55,7 @@ export function Finding({ data }: { data: Data }) {
         <div className={s.left}>
           <h2 className={s.h2} id="finding-h">Rank by WER, then by the money. The order changes.</h2>
           <p className={s.p}>
-            Same 25 calls, same audio, all 8 conditions. WER puts {v25hi.label} first. That lead is the ₹ vs रुपये
+            Same {data.pipeline.clips / data.pipeline.languages.length} calls, same audio, all {data.pipeline.conditions.length} conditions. WER puts {v25hi.label} first. That lead is the ₹ vs रुपये
             spelling: count the currency word the same way and it is <b>a tie</b>{" "}
             <span className={s.ci}>({(m.wer_cn!.diff * 100).toFixed(1)} pts {ciText({ value: 0, lo: m.wer_cn!.lo, hi: m.wer_cn!.hi }, 1)})</span>,
             and so are the amounts.

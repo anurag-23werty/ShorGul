@@ -146,6 +146,10 @@
    ]
   }
  ],
+ "heldout_lines": 25,
+ "heldout_entities": 42,
+ "real_calls_n": 60,
+ "transcripts_total": 4955,
  "repair_entity_regressions": 0,
  "repair_wer_increases": {
   "total": 14,

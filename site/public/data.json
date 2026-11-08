@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-08T07:42:17+00:00",
+ "generated_at": "2026-11-08T10:28:03+00:00",
  "source": "results/summary.csv, results/comparisons.csv, results/scored_full.parquet, results/finding_check.md",
  "ci": "95% percentile bootstrap over clips, 1,000 resamples; comparisons are paired",
  "headline": {
@@ -10,38 +10,38 @@
    "hi": 0.0
   },
   "entity_v25_hi": {
-   "value": 0.935,
-   "lo": 0.91,
-   "hi": 0.955
+   "value": 0.9356,
+   "lo": 0.9111,
+   "hi": 0.9556
   },
   "entity_v30": {
    "value": 0.96,
-   "lo": 0.9425,
-   "hi": 0.9775
+   "lo": 0.94,
+   "hi": 0.9756
   },
   "matched_v30_minus_v25": {
    "wer": {
-    "diff": 0.0587,
-    "lo": 0.0265,
-    "hi": 0.0912,
+    "diff": 0.0559,
+    "lo": 0.0216,
+    "hi": 0.0896,
     "p": 0.002,
     "significant": true,
     "verdict": "prisma-v2.5/matched better (significant)",
     "n_clips": 25
    },
    "wer_cn": {
-    "diff": -0.014,
-    "lo": -0.0461,
-    "hi": 0.0188,
-    "p": 0.466,
+    "diff": -0.0168,
+    "lo": -0.0508,
+    "hi": 0.017,
+    "p": 0.396,
     "significant": false,
     "verdict": "tie (not significant)",
     "n_clips": 25
    },
    "entity_hit_rate": {
-    "diff": 0.025,
+    "diff": 0.0244,
     "lo": 0.0,
-    "hi": 0.07,
+    "hi": 0.0689,
     "p": 0.274,
     "significant": false,
     "verdict": "tie (not significant)",
@@ -58,16 +58,16 @@
     "label": "Prisma v2.5 · en-IN",
     "model": "prisma-v2.5",
     "variant": "raw",
-    "n_rows": 200,
+    "n_rows": 225,
     "wer": {
-     "value": 0.6254,
-     "lo": 0.6026,
-     "hi": 0.6479
+     "value": 0.6246,
+     "lo": 0.6042,
+     "hi": 0.6457
     },
     "wer_cn": {
-     "value": 0.5542,
-     "lo": 0.5326,
-     "hi": 0.5756
+     "value": 0.5535,
+     "lo": 0.5334,
+     "hi": 0.5745
     },
     "entity": {
      "value": 0.0,
@@ -82,21 +82,21 @@
     "label": "Prisma v2.5 · hi-IN",
     "model": "prisma-v2.5",
     "variant": "matched",
-    "n_rows": 200,
+    "n_rows": 225,
     "wer": {
-     "value": 0.322,
-     "lo": 0.3053,
-     "hi": 0.3385
+     "value": 0.3212,
+     "lo": 0.3049,
+     "hi": 0.3367
     },
     "wer_cn": {
-     "value": 0.322,
-     "lo": 0.3053,
-     "hi": 0.3385
+     "value": 0.3212,
+     "lo": 0.3049,
+     "hi": 0.3367
     },
     "entity": {
-     "value": 0.935,
-     "lo": 0.91,
-     "hi": 0.955
+     "value": 0.9356,
+     "lo": 0.9111,
+     "hi": 0.9556
     },
     "wer_rank": 1,
     "entity_rank": 2
@@ -106,21 +106,21 @@
     "label": "Prisma v3.0",
     "model": "prisma-v3.0",
     "variant": "raw",
-    "n_rows": 200,
+    "n_rows": 225,
     "wer": {
-     "value": 0.3905,
-     "lo": 0.375,
-     "hi": 0.4061
+     "value": 0.3896,
+     "lo": 0.3745,
+     "hi": 0.404
     },
     "wer_cn": {
-     "value": 0.3178,
-     "lo": 0.3021,
-     "hi": 0.334
+     "value": 0.3168,
+     "lo": 0.3022,
+     "hi": 0.3312
     },
     "entity": {
      "value": 0.96,
-     "lo": 0.9425,
-     "hi": 0.9775
+     "lo": 0.94,
+     "hi": 0.9756
     },
     "wer_rank": 2,
     "entity_rank": 1
@@ -130,21 +130,21 @@
     "label": "Whisper-small",
     "model": "whisper-small",
     "variant": "raw",
-    "n_rows": 200,
+    "n_rows": 225,
     "wer": {
-     "value": 0.7265,
-     "lo": 0.6713,
-     "hi": 0.7859
+     "value": 0.7114,
+     "lo": 0.662,
+     "hi": 0.7638
     },
     "wer_cn": {
-     "value": 0.7258,
-     "lo": 0.6705,
-     "hi": 0.7855
+     "value": 0.7104,
+     "lo": 0.6614,
+     "hi": 0.7626
     },
     "entity": {
-     "value": 0.1725,
-     "lo": 0.1299,
-     "hi": 0.2175
+     "value": 0.1756,
+     "lo": 0.1356,
+     "hi": 0.2178
     },
     "wer_rank": 4,
     "entity_rank": 3
@@ -156,44 +156,44 @@
     "b": "v25_hi",
     "metric": "wer",
     "diff": 0.3034,
-    "lo": 0.2279,
-    "hi": 0.3832,
+    "lo": 0.2281,
+    "hi": 0.3825,
     "significant": true
    },
    {
     "a": "v25_en",
     "b": "v25_hi",
     "metric": "wer_cn",
-    "diff": 0.2322,
-    "lo": 0.157,
-    "hi": 0.3087,
+    "diff": 0.2323,
+    "lo": 0.1569,
+    "hi": 0.3093,
     "significant": true
    },
    {
     "a": "v25_en",
     "b": "v25_hi",
     "metric": "entity",
-    "diff": -0.935,
-    "lo": -0.995,
-    "hi": -0.86,
+    "diff": -0.9356,
+    "lo": -0.9956,
+    "hi": -0.8622,
     "significant": true
    },
    {
     "a": "v25_en",
     "b": "v30",
     "metric": "wer",
-    "diff": 0.2348,
-    "lo": 0.1707,
-    "hi": 0.307,
+    "diff": 0.235,
+    "lo": 0.1719,
+    "hi": 0.3075,
     "significant": true
    },
    {
     "a": "v25_en",
     "b": "v30",
     "metric": "wer_cn",
-    "diff": 0.2364,
-    "lo": 0.1721,
-    "hi": 0.3087,
+    "diff": 0.2367,
+    "lo": 0.1728,
+    "hi": 0.3091,
     "significant": true
    },
    {
@@ -209,53 +209,53 @@
     "a": "v25_en",
     "b": "whisper",
     "metric": "wer",
-    "diff": -0.1011,
-    "lo": -0.2229,
-    "hi": 0.02,
+    "diff": -0.0869,
+    "lo": -0.2007,
+    "hi": 0.0286,
     "significant": false
    },
    {
     "a": "v25_en",
     "b": "whisper",
     "metric": "wer_cn",
-    "diff": -0.1716,
-    "lo": -0.2954,
-    "hi": -0.048,
+    "diff": -0.1569,
+    "lo": -0.2727,
+    "hi": -0.0371,
     "significant": true
    },
    {
     "a": "v25_en",
     "b": "whisper",
     "metric": "entity",
-    "diff": -0.1725,
-    "lo": -0.2826,
-    "hi": -0.0849,
+    "diff": -0.1756,
+    "lo": -0.2889,
+    "hi": -0.0866,
     "significant": true
    },
    {
     "a": "v25_hi",
     "b": "v30",
     "metric": "wer",
-    "diff": -0.0686,
+    "diff": -0.0684,
     "lo": -0.0979,
-    "hi": -0.0383,
+    "hi": -0.039,
     "significant": true
    },
    {
     "a": "v25_hi",
     "b": "v30",
     "metric": "wer_cn",
-    "diff": 0.0042,
-    "lo": -0.0259,
-    "hi": 0.0346,
+    "diff": 0.0044,
+    "lo": -0.0262,
+    "hi": 0.0348,
     "significant": false
    },
    {
     "a": "v25_hi",
     "b": "v30",
     "metric": "entity",
-    "diff": -0.025,
-    "lo": -0.07,
+    "diff": -0.0244,
+    "lo": -0.0689,
     "hi": 0.0,
     "significant": false
    },
@@ -263,60 +263,66 @@
     "a": "v25_hi",
     "b": "whisper",
     "metric": "wer",
-    "diff": -0.4045,
-    "lo": -0.5266,
-    "hi": -0.3018,
+    "diff": -0.3902,
+    "lo": -0.5021,
+    "hi": -0.2934,
     "significant": true
    },
    {
     "a": "v25_hi",
     "b": "whisper",
     "metric": "wer_cn",
-    "diff": -0.4038,
-    "lo": -0.5255,
-    "hi": -0.3011,
+    "diff": -0.3892,
+    "lo": -0.5004,
+    "hi": -0.2925,
     "significant": true
    },
    {
     "a": "v25_hi",
     "b": "whisper",
     "metric": "entity",
-    "diff": 0.7625,
-    "lo": 0.635,
-    "hi": 0.8676,
+    "diff": 0.76,
+    "lo": 0.6333,
+    "hi": 0.8645,
     "significant": true
    },
    {
     "a": "v30",
     "b": "whisper",
     "metric": "wer",
-    "diff": -0.336,
-    "lo": -0.4449,
-    "hi": -0.2398,
+    "diff": -0.3219,
+    "lo": -0.4205,
+    "hi": -0.2334,
     "significant": true
    },
    {
     "a": "v30",
     "b": "whisper",
     "metric": "wer_cn",
-    "diff": -0.408,
-    "lo": -0.5198,
-    "hi": -0.3079,
+    "diff": -0.3936,
+    "lo": -0.4947,
+    "hi": -0.3013,
     "significant": true
    },
    {
     "a": "v30",
     "b": "whisper",
     "metric": "entity",
-    "diff": 0.7875,
-    "lo": 0.6524,
-    "hi": 0.8925,
+    "diff": 0.7844,
+    "lo": 0.6466,
+    "hi": 0.8911,
     "significant": true
    }
   ]
  },
  "entity_by_condition": {
   "v25_en": {
+   "amrnb_mobile": {
+    "value": 0.0,
+    "lo": 0.0,
+    "hi": 0.0,
+    "n": 25
+   },
    "clean": {
     "value": 0.0,
     "lo": 0.0,
@@ -367,6 +373,12 @@
    }
   },
   "v25_hi": {
+   "amrnb_mobile": {
+    "value": 0.94,
+    "lo": 0.88,
+    "hi": 1.0,
+    "n": 25
+   },
    "clean": {
     "value": 0.94,
     "lo": 0.88,
@@ -417,6 +429,12 @@
    }
   },
   "v30": {
+   "amrnb_mobile": {
+    "value": 0.96,
+    "lo": 0.9,
+    "hi": 1.0,
+    "n": 25
+   },
    "clean": {
     "value": 0.96,
     "lo": 0.9,
@@ -467,6 +485,12 @@
    }
   },
   "whisper": {
+   "amrnb_mobile": {
+    "value": 0.2,
+    "lo": 0.08,
+    "hi": 0.34,
+    "n": 25
+   },
    "clean": {
     "value": 0.22,
     "lo": 0.08,
@@ -608,6 +632,14 @@
     "phone": false,
     "loss": null,
     "codec": "opus"
+   },
+   {
+    "id": "amrnb_mobile",
+    "snr_db": null,
+    "noise": null,
+    "phone": false,
+    "loss": null,
+    "codec": "amrnb"
    }
   ],
   "series": [
@@ -730,6 +762,22 @@
        "lo": -0.0184,
        "hi": 0.0061,
        "p": 0.462,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.1228,
+      "lo": 0.0873,
+      "hi": 0.1618,
+      "n": 25,
+      "vs_clean": {
+       "diff": -0.0078,
+       "lo": -0.0244,
+       "hi": 0.0061,
+       "p": 0.396,
        "significant": false,
        "verdict": "no significant change",
        "n_clips": 25
@@ -860,6 +908,22 @@
        "verdict": "significantly worse than clean",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.1676,
+      "lo": 0.1201,
+      "hi": 0.2218,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0292,
+       "lo": 0.0041,
+       "hi": 0.0575,
+       "p": 0.028,
+       "significant": true,
+       "verdict": "significantly worse than clean",
+       "n_clips": 25
+      }
      }
     ]
    },
@@ -982,6 +1046,22 @@
        "lo": -0.0438,
        "hi": 0.2207,
        "p": 0.662,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 1.1832,
+      "lo": 1.0561,
+      "hi": 1.3836,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.1014,
+       "lo": -0.0133,
+       "hi": 0.296,
+       "p": 0.214,
        "significant": false,
        "verdict": "no significant change",
        "n_clips": 25
@@ -1112,6 +1192,22 @@
        "verdict": "no significant change",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.0724,
+      "lo": 0.0458,
+      "hi": 0.1008,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0014,
+       "lo": -0.007,
+       "hi": 0.0093,
+       "p": 0.89,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
      }
     ]
    },
@@ -1234,6 +1330,22 @@
        "lo": 0.0,
        "hi": 0.0244,
        "p": 0.058,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.0984,
+      "lo": 0.0676,
+      "hi": 0.1297,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0087,
+       "lo": -0.0101,
+       "hi": 0.0271,
+       "p": 0.46,
        "significant": false,
        "verdict": "no significant change",
        "n_clips": 25
@@ -1364,6 +1476,22 @@
        "verdict": "no significant change",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.8119,
+      "lo": 0.5675,
+      "hi": 1.1247,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0188,
+       "lo": -0.2384,
+       "hi": 0.2758,
+       "p": 0.768,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
      }
     ]
    },
@@ -1477,6 +1605,22 @@
      },
      {
       "condition": "opus_voip",
+      "wer": 0.6182,
+      "lo": 0.5584,
+      "hi": 0.6869,
+      "n": 25,
+      "vs_clean": {
+       "diff": -0.003,
+       "lo": -0.0093,
+       "hi": 0.0,
+       "p": 0.712,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
       "wer": 0.6182,
       "lo": 0.5584,
       "hi": 0.6869,
@@ -1616,6 +1760,22 @@
        "verdict": "no significant change",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.3818,
+      "lo": 0.3405,
+      "hi": 0.4259,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0,
+       "lo": -0.0122,
+       "hi": 0.0152,
+       "p": 1.0,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
      }
     ]
    },
@@ -1738,6 +1898,22 @@
        "lo": -0.0394,
        "hi": 0.0499,
        "p": 0.84,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.5909,
+      "lo": 0.5117,
+      "hi": 0.6768,
+      "n": 25,
+      "vs_clean": {
+       "diff": -0.0242,
+       "lo": -0.0965,
+       "hi": 0.0436,
+       "p": 0.544,
        "significant": false,
        "verdict": "no significant change",
        "n_clips": 25
@@ -1868,6 +2044,22 @@
        "verdict": "no significant change",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.2174,
+      "lo": 0.1689,
+      "hi": 0.2673,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0046,
+       "lo": -0.0093,
+       "hi": 0.0194,
+       "p": 0.656,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
      }
     ]
    },
@@ -1990,6 +2182,22 @@
        "lo": -0.0122,
        "hi": 0.0334,
        "p": 0.546,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.2586,
+      "lo": 0.2004,
+      "hi": 0.3245,
+      "n": 25,
+      "vs_clean": {
+       "diff": 0.0,
+       "lo": -0.0212,
+       "hi": 0.025,
+       "p": 1.0,
        "significant": false,
        "verdict": "no significant change",
        "n_clips": 25
@@ -2120,6 +2328,22 @@
        "verdict": "no significant change",
        "n_clips": 25
       }
+     },
+     {
+      "condition": "amrnb_mobile",
+      "wer": 0.7094,
+      "lo": 0.634,
+      "hi": 0.7924,
+      "n": 25,
+      "vs_clean": {
+       "diff": -0.0252,
+       "lo": -0.1689,
+       "hi": 0.0757,
+       "p": 0.776,
+       "significant": false,
+       "verdict": "no significant change",
+       "n_clips": 25
+      }
      }
     ]
    }
@@ -2151,9 +2375,9 @@
      "n_clips": 25
     },
     "delta_wer_cn": {
-     "diff": -0.2943,
-     "lo": -0.3396,
-     "hi": -0.2504,
+     "diff": -0.2946,
+     "lo": -0.34,
+     "hi": -0.2508,
      "p": 0.0,
      "significant": true,
      "verdict": "repair significantly helps",
@@ -2164,13 +2388,13 @@
     "id": "v25_hi",
     "label": "Prisma v2.5 · hi-IN",
     "entity_raw": {
-     "value": 0.935,
-     "lo": 0.91,
-     "hi": 0.955
+     "value": 0.9356,
+     "lo": 0.9111,
+     "hi": 0.9556
     },
     "entity_repaired": {
-     "value": 0.995,
-     "lo": 0.9875,
+     "value": 0.9956,
+     "lo": 0.9889,
      "hi": 1.0
     },
     "delta_entity": {
@@ -2197,26 +2421,26 @@
     "label": "Prisma v3.0",
     "entity_raw": {
      "value": 0.96,
-     "lo": 0.9425,
-     "hi": 0.9775
+     "lo": 0.94,
+     "hi": 0.9756
     },
     "entity_repaired": {
-     "value": 0.9725,
-     "lo": 0.9575,
-     "hi": 0.9875
+     "value": 0.9733,
+     "lo": 0.9556,
+     "hi": 0.9867
     },
     "delta_entity": {
-     "diff": 0.0125,
+     "diff": 0.0133,
      "lo": 0.0,
-     "hi": 0.0375,
+     "hi": 0.04,
      "p": 0.698,
      "significant": false,
      "verdict": "no significant change",
      "n_clips": 25
     },
     "delta_wer_cn": {
-     "diff": -0.0038,
-     "lo": -0.0121,
+     "diff": -0.004,
+     "lo": -0.0129,
      "hi": 0.0,
      "p": 0.698,
      "significant": false,
@@ -2228,28 +2452,28 @@
     "id": "whisper",
     "label": "Whisper-small",
     "entity_raw": {
-     "value": 0.1725,
-     "lo": 0.1299,
-     "hi": 0.2175
+     "value": 0.1756,
+     "lo": 0.1356,
+     "hi": 0.2178
     },
     "entity_repaired": {
-     "value": 0.2525,
-     "lo": 0.2075,
-     "hi": 0.3
+     "value": 0.2533,
+     "lo": 0.2111,
+     "hi": 0.2978
     },
     "delta_entity": {
-     "diff": 0.08,
-     "lo": 0.025,
-     "hi": 0.145,
+     "diff": 0.0778,
+     "lo": 0.0244,
+     "hi": 0.1422,
      "p": 0.006,
      "significant": true,
      "verdict": "repair significantly helps",
      "n_clips": 25
     },
     "delta_wer_cn": {
-     "diff": -0.0326,
-     "lo": -0.0553,
-     "hi": -0.0135,
+     "diff": -0.033,
+     "lo": -0.0556,
+     "hi": -0.0141,
      "p": 0.0,
      "significant": true,
      "verdict": "repair significantly helps",
@@ -2260,7 +2484,7 @@
   "regressions": {
    "entity": 0,
    "wer": 0,
-   "transcripts": 4175
+   "transcripts": 4525
   },
   "caveat": "Repair rules were developed on these same transcripts: gains are in-sample. The 0-regressions result is the robust claim."
  },
@@ -13809,8 +14033,9 @@
   "release_gate_entity": {
    "command": "shorgul compare --baseline v25.parquet --candidate v30.parquet --metric entity --fail-on 2",
    "output": [
-    "    lang condition  delta_pts  ci_lo  ci_hi               verdict",
-    "hinglish       ALL        2.5    0.0    7.0 no significant change",
+    "            lang condition  delta_pts  ci_lo  ci_hi               verdict",
+    "        hinglish       ALL       2.44    0.0   6.89 no significant change",
+    "hinglish_heldout       ALL       2.00    0.0   6.00 no significant change",
     "PASS: no significant entity regression of >= 2.0 pts"
    ],
    "exit_code": 0
@@ -13819,11 +14044,11 @@
    "command": "shorgul compare --baseline v25.parquet --candidate v30.parquet --metric wer --fail-on 2",
    "output": [
     "lang condition  delta_pts  ci_lo  ci_hi    verdict",
-    "  bn       ALL       3.65   1.36   6.42 REGRESSION",
-    "  hi       ALL       3.18   2.13   4.37 REGRESSION",
-    "  ta       ALL       4.15   0.59   8.48 REGRESSION",
-    "(14 per-condition changes; --verbose to list)",
-    "FAIL: 16 significant regression(s) of >= 2.0 pts wer"
+    "  bn       ALL       3.75   1.59   6.55 REGRESSION",
+    "  hi       ALL       3.12   2.12   4.21 REGRESSION",
+    "  ta       ALL       4.14   0.51   8.70 REGRESSION",
+    "(16 per-condition changes; --verbose to list)",
+    "FAIL: 18 significant regression(s) of >= 2.0 pts wer"
    ],
    "exit_code": 1
   },
@@ -13845,15 +14070,353 @@
    "traffic_5",
    "market_10",
    "market_0",
-   "opus_voip"
+   "opus_voip",
+   "amrnb_mobile"
   ],
   "models": [
    "prisma-v2.5",
    "prisma-v3.0",
    "whisper-small"
   ],
-  "transcripts": 4175,
+  "transcripts": 4525,
   "failed": 0,
-  "paired_tests": 944
+  "paired_tests": 1140
+ },
+ "validation": {
+  "heldout": [
+   {
+    "system": "Prisma v2.5 · en-IN",
+    "dev_raw": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "dev_rep": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "held_raw": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "held_rep": [
+     0.94,
+     0.9,
+     0.98
+    ],
+    "held_delta": [
+     0.94,
+     0.88,
+     1.0,
+     true
+    ]
+   },
+   {
+    "system": "Prisma v2.5 · hi-IN",
+    "dev_raw": [
+     0.93,
+     0.88,
+     0.98
+    ],
+    "dev_rep": [
+     0.99,
+     0.97,
+     1.0
+    ],
+    "held_raw": [
+     0.96,
+     0.92,
+     0.99
+    ],
+    "held_rep": [
+     0.99,
+     0.97,
+     1.0
+    ],
+    "held_delta": [
+     0.030000000000000027,
+     0.0,
+     0.07999999999999996,
+     false
+    ]
+   },
+   {
+    "system": "Prisma v3.0",
+    "dev_raw": [
+     0.96,
+     0.92,
+     0.99
+    ],
+    "dev_rep": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_raw": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_rep": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_delta": [
+     0.0,
+     0.0,
+     0.0,
+     false
+    ]
+   },
+   {
+    "system": "Prisma v3.0 · hi-IN",
+    "dev_raw": [
+     0.96,
+     0.92,
+     0.99
+    ],
+    "dev_rep": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_raw": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_rep": [
+     0.98,
+     0.95,
+     1.0
+    ],
+    "held_delta": [
+     0.0,
+     0.0,
+     0.0,
+     false
+    ]
+   },
+   {
+    "system": "Whisper-small",
+    "dev_raw": [
+     0.18,
+     0.09,
+     0.28
+    ],
+    "dev_rep": [
+     0.29,
+     0.19,
+     0.39
+    ],
+    "held_raw": [
+     0.29,
+     0.18,
+     0.41
+    ],
+    "held_rep": [
+     0.3,
+     0.19,
+     0.42
+    ],
+    "held_delta": [
+     0.010000000000000009,
+     0.0,
+     0.030000000000000027,
+     false
+    ]
+   }
+  ],
+  "heldout_lines": 25,
+  "heldout_entities": 42,
+  "real_calls_n": 60,
+  "transcripts_total": 4955,
+  "repair_entity_regressions": 0,
+  "repair_wer_increases": {
+   "total": 14,
+   "by_lang": {
+    "hi_gv": 14
+   }
+  },
+  "real_calls": [
+   {
+    "model": "Prisma v2.5",
+    "all": [
+     0.16149461684610514,
+     0.1373707403481001,
+     0.1895070506606763
+    ],
+    "clean_line": [
+     0.16132723112128147,
+     0.12484982868301832,
+     0.2024761145363159
+    ],
+    "dropout": [
+     0.16170212765957448,
+     0.13088537194724373,
+     0.19620614415351711
+    ],
+    "dropout_minus_clean": [
+     0.00037489653829300695,
+     -0.04754515540655031,
+     0.050630039971800885
+    ],
+    "fleurs_phone_sim": [
+     0.06657018813314038,
+     0.04182263314823426,
+     0.09623446692043917
+    ]
+   },
+   {
+    "model": "Prisma v3.0",
+    "all": [
+     0.18872704243191893,
+     0.1615697446325134,
+     0.2208295546590855
+    ],
+    "clean_line": [
+     0.18421052631578946,
+     0.14330340951845086,
+     0.2300796113747921
+    ],
+    "dropout": [
+     0.19432624113475178,
+     0.1565546107100616,
+     0.23734177215189872
+    ],
+    "dropout_minus_clean": [
+     0.010115714818962313,
+     -0.04667664675079571,
+     0.0695055393711593
+    ],
+    "fleurs_phone_sim": [
+     0.09406657018813314,
+     0.0609406100180299,
+     0.1293263564316196
+    ]
+   },
+   {
+    "model": "Whisper-small",
+    "all": [
+     0.882837238758708,
+     0.7385901288481495,
+     1.0661548662964844
+    ],
+    "clean_line": [
+     0.7894736842105263,
+     0.6591130357606866,
+     0.9664713858475263
+    ],
+    "dropout": [
+     0.9985815602836879,
+     0.7335524256651017,
+     1.3142695954487988
+    ],
+    "dropout_minus_clean": [
+     0.2091078760731616,
+     -0.1055228078369011,
+     0.5639200652770083
+    ],
+    "fleurs_phone_sim": [
+     0.7264833574529667,
+     0.5375408095952023,
+     0.9688902293590704
+    ]
+   }
+  ],
+  "real_v30_minus_v25": [
+   0.02723242558581379,
+   0.002956746530054333,
+   0.05333600534402139,
+   true
+  ],
+  "amr_vs_phone": {
+   "prisma-v2.5/hi": [
+    0.005788712011577421,
+    0.0,
+    0.012200161257810918,
+    false
+   ],
+   "prisma-v2.5/bn": [
+    -0.005847953216374269,
+    -0.022542676407697786,
+    0.007905138339920945,
+    false
+   ],
+   "prisma-v2.5/ta": [
+    -0.0022883295194507935,
+    -0.013888888888888867,
+    0.006881526656238096,
+    false
+   ],
+   "prisma-v2.5/hinglish": [
+    0.0,
+    -0.00909090909090915,
+    0.009146341463414642,
+    false
+   ],
+   "prisma-v3.0/hi": [
+    0.004341534008683076,
+    -0.011101879103463894,
+    0.01767566683030601,
+    false
+   ],
+   "prisma-v3.0/bn": [
+    0.023391812865497075,
+    0.0019640643180040855,
+    0.0441813464579204,
+    true
+   ],
+   "prisma-v3.0/ta": [
+    -0.0022883295194507935,
+    -0.019007060050949872,
+    0.016958592045645246,
+    false
+   ],
+   "prisma-v3.0/hinglish": [
+    -0.006060606060606044,
+    -0.014973451887765261,
+    0.0,
+    false
+   ],
+   "whisper-small/hi": [
+    0.08538350217076707,
+    -0.03576602614072105,
+    0.28302121079595144,
+    false
+   ],
+   "whisper-small/bn": [
+    0.06432748538011701,
+    -0.03050386821395243,
+    0.2158013032442463,
+    false
+   ],
+   "whisper-small/ta": [
+    -0.009153318077803174,
+    -0.1372406082289803,
+    0.08133010680907869,
+    false
+   ],
+   "whisper-small/hinglish": [
+    -0.036363636363636376,
+    -0.09091577540106954,
+    0.009758417078294392,
+    false
+   ]
+  },
+  "long_audio": {
+   "seconds": 77.8,
+   "chunks": 4,
+   "cuts_in_pause": "3/3",
+   "entities": 25,
+   "entity_acc_long": 0.96,
+   "entity_acc_long_repaired": 0.96,
+   "entity_acc_per_clip_mean": 0.9643,
+   "wer_long": 0.4118,
+   "wer_per_clip_corpus": 0.385
+  }
  }
 }

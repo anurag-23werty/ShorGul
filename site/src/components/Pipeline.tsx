@@ -9,7 +9,7 @@ export function Pipeline({ data }: { data: Data }) {
   const conds: string[] = p.conditions;
   const nodes = [
     { title: "Data", big: p.clips, unit: "clips", items: ["FLEURS hi · bn · ta", "Hinglish call-centre lines", "voiced with Gnani Timbre"] },
-    { title: "Phone simulation", big: conds.length, unit: "conditions", items: ["300–3400 Hz · 8 kHz μ-law", "5% packet loss", "traffic · market noise", "Opus 8 kbps VoIP"] },
+    { title: "Phone simulation", big: conds.length, unit: "conditions", items: ["300–3400 Hz · 8 kHz μ-law", "AMR-NB 12.2 kbps mobile", "Opus 8 kbps VoIP", "packet loss · noise"] },
     { title: "Fixes", big: -1, unit: "variants", items: ["denoise (spectral gating)", "context hints (v3.0)", "matched language_code"] },
     { title: "ASR", big: p.models.length, unit: "models", items: ["Gnani Prisma v2.5", "Gnani Prisma v3.0", "Whisper-small (local)", "cached: nothing billed twice"] },
     { title: "Scoring", big: p.paired_tests, unit: "paired tests", items: ["WER · currency-neutral WER", "amount & date accuracy", "bootstrap 95% CIs", "entity repair"] },

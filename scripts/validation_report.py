@@ -52,6 +52,11 @@ def main() -> None:
            "Repair code frozen at `0aa0b95`. Entity accuracy, clean + market 10 dB pooled:", "",
            "| system | dev set: raw → repaired | **held-out: raw → repaired** | held-out Δ (paired) |", "|---|---|---|---|"]
     out["heldout"] = []
+    out["heldout_lines"] = int(sc[sc.lang == "hinglish_heldout"].clip_id.nunique())
+    out["heldout_entities"] = int(sc[sc.lang == "hinglish_heldout"].drop_duplicates("clip_id").entities
+                                  .str.split(";").str.len().sum())
+    out["real_calls_n"] = int(sc[sc.lang == "hi_gv"].clip_id.nunique())
+    out["transcripts_total"] = int(len(sc))
     for label, model, var in SYSTEMS:
         rows = []
         for lang in ("hinglish", "hinglish_heldout"):

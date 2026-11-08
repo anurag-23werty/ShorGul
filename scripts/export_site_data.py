@@ -347,6 +347,7 @@ def main() -> None:
         "examples": examples(sc),
         "terminals": terminals(),
         "pipeline": pipeline_counts(sc),
+        "validation": json.loads((RES / "validation.json").read_text()),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
