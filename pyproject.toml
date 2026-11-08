@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shorgul"
+version = "0.1.0"
+description = "Telephony robustness and entity-accuracy testing for Indian-language ASR"
+requires-python = ">=3.11"
+
+[project.scripts]
+shorgul = "shorgul.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["shorgul*"]
+
+[tool.setuptools.package-data]
+shorgul = ["audit/templates/*.j2", "data/*.txt"]
