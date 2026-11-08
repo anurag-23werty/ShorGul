@@ -70,7 +70,7 @@ def claims_table(c: pd.DataFrame) -> str:
 
 def degradation_table(c: pd.DataFrame) -> str:
     x = c[c.comparison.str.endswith("vs clean") & (c.metric == "wer") & c.A.str.startswith("prisma")].copy()
-    conds = [c for c in ["phone", "loss_5", "traffic_10", "traffic_5", "market_10", "market_0", "opus_voip"]
+    conds = [c for c in ["phone", "loss_5", "traffic_10", "traffic_5", "market_10", "market_0", "opus_voip", "amrnb_mobile"]
              if c in set(x["condition"])]
     x["model"] = x.A.str.split("/").str[0]
     x["cell"] = [f"{d * 100:+.1f}{'*' if v != 'no significant change' else ''}" for d, v in zip(x["diff"], x.verdict)]

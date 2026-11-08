@@ -11,16 +11,17 @@ conditions; Δ = repaired − raw, paired bootstrap over clips, 95% CI, `*` = si
 <!-- table:repair -->
 | model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | Δ WER currency-neutral |
 |---|---|---|---|---|
-| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.5 [-41.4, -31.8] * | -29.4 [-34.0, -25.0] * |
+| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.6 [-41.4, -31.8] * | -29.5 [-34.0, -25.1] * |
 | Prisma v2.5 (`hi-IN`) | 94% → 100% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
-| Prisma v3.0 | 96% → 97% | +1.2 [+0.0, +3.8] | -7.6 [-8.8, -6.6] * | -0.4 [-1.2, +0.0] |
+| Prisma v3.0 | 96% → 97% | +1.3 [+0.0, +4.0] | -7.7 [-8.9, -6.6] * | -0.4 [-1.3, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
-| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.3 [-5.5, -1.4] * | -3.3 [-5.5, -1.4] * |
+| Whisper-small | 18% → 25% | +7.8 [+2.4, +14.2] * | -3.3 [-5.6, -1.4] * | -3.3 [-5.6, -1.4] * |
 <!-- /table:repair -->
 
-> **In-sample caveat.** The repair lexicon and rules were developed while reading these same benchmark
-> transcripts, and one bug (a wrong ₹99 for "nao sau ninyanave rupay") was found and fixed that way. Treat the
-> numbers above as in-sample. The 0-regressions result is the robust claim; held-out accuracy on new calls will be lower.
+> **In-sample caveat, now measured.** The table above is the dev set the rules were written on. On 25 held-out lines
+> (42 entities, new speakers, committed before any audio existed, code frozen at `0aa0b95`), repair took Prisma v2.5
+> `en-IN` from 0% to **94% [90, 98]** against 100% in-sample: a 6-point generalisation gap. Across 4,955 transcripts,
+> including 60 real phone calls, there were **0 entity regressions**. See `results/validation.md`.
 
 ## What this shows
 

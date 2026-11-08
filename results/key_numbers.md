@@ -22,15 +22,15 @@
 
 | claim (A − B) | lang | conditions | metric | Δ (pts) | 95% CI | verdict |
 |---|---|---|---|---|---|---|
-| v3.0 vs v2.5 | hi | all | WER | +3.2 | [+2.1, +4.4] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | bn | all | WER | +3.6 | [+1.4, +6.4] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | ta | all | WER | +4.2 | [+0.6, +8.5] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | hi | all | WER | +3.1 | [+2.1, +4.2] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | bn | all | WER | +3.8 | [+1.6, +6.6] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | ta | all | WER | +4.1 | [+0.5, +8.7] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | hi | clean | WER | +1.9 | [+0.6, +3.4] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | bn | clean | WER | +0.8 | [-1.9, +3.6] | tie (not significant) |
 | v3.0 vs v2.5 | ta | clean | WER | +4.6 | [+0.7, +9.7] | prisma-v2.5/raw better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.9 | [+2.6, +9.1] | prisma-v2.5/matched better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.4 | [-4.6, +1.9] | tie (not significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.5 | [+0.0, +7.0] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.6 | [+2.2, +9.0] | prisma-v2.5/matched better (significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.7 | [-5.1, +1.7] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.4 | [+0.0, +6.9] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | WER | -2.2 | [-5.5, +0.6] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | entity acc. | -4.0 | [-12.0, +0.0] | tie (not significant) |
 | prisma-v2.5 denoised vs raw | hi | all | WER | +2.5 | [+1.2, +3.8] | prisma-v2.5/raw better (significant) |
@@ -48,23 +48,23 @@
 
 ## degradation
 
-| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 | opus_voip |
-|---|---|---|---|---|---|---|---|---|
-| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* | -0.6 |
-| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* | +0.0 |
-| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* | -0.3 |
-| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* | +1.4 |
-| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* | +3.7* |
-| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* | +1.2 |
-| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 | +0.0 |
-| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* | +0.9 |
+| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 | opus_voip | amrnb_mobile |
+|---|---|---|---|---|---|---|---|---|---|
+| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* | -0.6 | -0.8 |
+| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* | +0.0 | +0.1 |
+| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* | -0.3 | -0.3 |
+| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* | +1.4 | +0.5 |
+| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* | +3.7* | +2.9* |
+| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* | +1.2 | +0.9 |
+| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 | +0.0 | +0.0 |
+| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* | +0.9 | +0.0 |
 
 ## repair
 
 | model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | Δ WER currency-neutral |
 |---|---|---|---|---|
-| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.5 [-41.4, -31.8] * | -29.4 [-34.0, -25.0] * |
+| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.6 [-41.4, -31.8] * | -29.5 [-34.0, -25.1] * |
 | Prisma v2.5 (`hi-IN`) | 94% → 100% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
-| Prisma v3.0 | 96% → 97% | +1.2 [+0.0, +3.8] | -7.6 [-8.8, -6.6] * | -0.4 [-1.2, +0.0] |
+| Prisma v3.0 | 96% → 97% | +1.3 [+0.0, +4.0] | -7.7 [-8.9, -6.6] * | -0.4 [-1.3, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
-| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.3 [-5.5, -1.4] * | -3.3 [-5.5, -1.4] * |
+| Whisper-small | 18% → 25% | +7.8 [+2.4, +14.2] * | -3.3 [-5.6, -1.4] * | -3.3 [-5.6, -1.4] * |

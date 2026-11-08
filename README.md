@@ -46,17 +46,19 @@ the call conditions and the entities part of the test. The full verification is 
 `shorgul.entities.repair` is a model-agnostic post-processor that rewrites spoken-form amounts and dates
 (*chaar hazaar paanch sau rupay → ₹4,500*, *चालीस हज़ार रुपये → ₹40,000*, *1 8 अगस्त → 18 अगस्त*,
 *3/1/May → 31 May*). It only converts **in an entity context**, so *do teen log* and *kar do* are left alone. It
-has 64 unit tests, and on all 4,175 benchmark transcripts it produced **0 regressions**. The rules were developed on
-these same transcripts, so the gains below are **in-sample**; expect less on new calls.
+has 66 unit tests, and across 4,955 transcripts (dev set, held-out set, 60 real phone calls) it produced
+**0 entity regressions**. The table below is the dev set it was built on (in-sample). On **25 held-out lines written and
+committed before any audio existed**, it took Prisma v2.5 (`en-IN`) from 0% to **94% [90, 98]**, against 100% in-sample.
+See [`results/validation.md`](results/validation.md).
 
 <!-- table:repair -->
 | model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | Δ WER currency-neutral |
 |---|---|---|---|---|
-| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.5 [-41.4, -31.8] * | -29.4 [-34.0, -25.0] * |
+| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.6 [-41.4, -31.8] * | -29.5 [-34.0, -25.1] * |
 | Prisma v2.5 (`hi-IN`) | 94% → 100% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
-| Prisma v3.0 | 96% → 97% | +1.2 [+0.0, +3.8] | -7.6 [-8.8, -6.6] * | -0.4 [-1.2, +0.0] |
+| Prisma v3.0 | 96% → 97% | +1.3 [+0.0, +4.0] | -7.7 [-8.9, -6.6] * | -0.4 [-1.3, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
-| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.3 [-5.5, -1.4] * | -3.3 [-5.5, -1.4] * |
+| Whisper-small | 18% → 25% | +7.8 [+2.4, +14.2] * | -3.3 [-5.6, -1.4] * | -3.3 [-5.6, -1.4] * |
 <!-- /table:repair -->
 
 `*` = significant (paired bootstrap). **Honest positioning:** on Prisma output with `format=transcribe`, Gnani's own
@@ -100,8 +102,8 @@ the gate in mock mode on every push, and checks that the gate catches an injecte
 ## Results
 
 100 clips (25 each of Hindi, Bengali and Tamil from FLEURS, plus 25 Hinglish call-centre lines voiced with Gnani Timbre) ×
-8 conditions (7 PSTN-style + 8 kbps Opus VoIP) × 3 models, plus denoised, context and matched-config variants:
-**4,175 transcripts, 0 failed.**
+9 conditions (7 PSTN-style, 8 kbps Opus VoIP, AMR-NB 12.2 kbps mobile) × 3 models, plus denoised, context and
+matched-config variants. Together with the held-out lines and 60 real phone calls (below): **4,955 transcripts, 0 failed.**
 Every table here is generated from `results/summary.csv` and `results/comparisons.csv`
 (`python -m shorgul.cli readme-tables`).
 
@@ -123,16 +125,16 @@ Every table here is generated from `results/summary.csv` and `results/comparison
 **Does the phone line hurt? WER change vs clean, same model, same clips** (pts; `*` = significant):
 
 <!-- table:degradation -->
-| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 | opus_voip |
-|---|---|---|---|---|---|---|---|---|
-| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* | -0.6 |
-| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* | +0.0 |
-| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* | -0.3 |
-| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* | +1.4 |
-| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* | +3.7* |
-| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* | +1.2 |
-| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 | +0.0 |
-| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* | +0.9 |
+| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 | opus_voip | amrnb_mobile |
+|---|---|---|---|---|---|---|---|---|---|
+| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* | -0.6 | -0.8 |
+| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* | +0.0 | +0.1 |
+| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* | -0.3 | -0.3 |
+| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* | +1.4 | +0.5 |
+| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* | +3.7* | +2.9* |
+| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* | +1.2 | +0.9 |
+| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 | +0.0 | +0.0 |
+| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* | +0.9 | +0.0 |
 <!-- /table:degradation -->
 
 What the data supports:
@@ -141,8 +143,8 @@ What the data supports:
    models, because babble sits in the speech band and survives the channel. Hinglish entity accuracy doesn't change significantly
    under any condition.
 2. **WhatsApp-style VoIP (Opus 8 kbps) is almost free too:** no significant WER change in 7 of 8 Prisma model ×
-   language cells. The exception is v3.0 Bengali (+3.7 pts, significant). Hinglish entity accuracy is unchanged. AMR-NB (mobile
-   voice) isn't tested, because no AMR-NB encoder ships with this ffmpeg build.
+   language cells. The exception is v3.0 Bengali (+3.7 pts, significant). Hinglish entity accuracy is unchanged. The real
+   **AMR-NB 12.2 kbps** mobile codec is no worse than the μ-law line in 7 of 8 Prisma cells (v3.0 Bengali +2.3, significant).
 3. **On verbatim read speech, v2.5 has lower WER than v3.0**, significant pooled over conditions in all three
    languages (a tie on clean Bengali), and the gap widens at 0 dB.
 4. **Don't put a generic denoiser in front of Prisma.** Spectral gating significantly *raised* WER in 5 of 6 Prisma ×
@@ -158,15 +160,15 @@ What the data supports:
 <!-- table:claims -->
 | claim (A − B) | lang | conditions | metric | Δ (pts) | 95% CI | verdict |
 |---|---|---|---|---|---|---|
-| v3.0 vs v2.5 | hi | all | WER | +3.2 | [+2.1, +4.4] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | bn | all | WER | +3.6 | [+1.4, +6.4] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | ta | all | WER | +4.2 | [+0.6, +8.5] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | hi | all | WER | +3.1 | [+2.1, +4.2] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | bn | all | WER | +3.8 | [+1.6, +6.6] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | ta | all | WER | +4.1 | [+0.5, +8.7] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | hi | clean | WER | +1.9 | [+0.6, +3.4] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | bn | clean | WER | +0.8 | [-1.9, +3.6] | tie (not significant) |
 | v3.0 vs v2.5 | ta | clean | WER | +4.6 | [+0.7, +9.7] | prisma-v2.5/raw better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.9 | [+2.6, +9.1] | prisma-v2.5/matched better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.4 | [-4.6, +1.9] | tie (not significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.5 | [+0.0, +7.0] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.6 | [+2.2, +9.0] | prisma-v2.5/matched better (significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.7 | [-5.1, +1.7] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.4 | [+0.0, +6.9] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | WER | -2.2 | [-5.5, +0.6] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | entity acc. | -4.0 | [-12.0, +0.0] | tie (not significant) |
 | prisma-v2.5 denoised vs raw | hi | all | WER | +2.5 | [+1.2, +3.8] | prisma-v2.5/raw better (significant) |
@@ -190,6 +192,23 @@ What the data supports:
 
 Per folder, mean stability tracks the true WER increase (Spearman ρ = 0.59, p = 0.00015) and sits near y = x.
 It is **not** calibrated for Whisper, whose output churns without getting proportionally worse.
+
+## Validation: what changed when we tested on real audio
+
+Four checks run after the benchmark, to replace assumptions with measurements. Full tables:
+[`results/validation.md`](results/validation.md).
+
+| check | result |
+|---|---|
+| **Entity repair on unseen lines** (25 lines, 42 entities, committed before any audio; code frozen) | Prisma v2.5 `en-IN`: 0% → **94% [90, 98]** (100% in-sample). 0 entity regressions on 4,955 transcripts |
+| **60 real phone calls** (Gram Vaani, OpenSLR 118: spontaneous Hindi, rural callers) | Prisma v2.5 **16.1%** WER [13.7, 19.0], v3.0 **18.9%** [16.2, 22.1]: about 2× the simulated phone condition on read speech (6.7%, 9.4%). v2.5 beats v3.0 here too (+2.7 pts [+0.3, +5.3], paired) |
+| **Real dropouts** (annotator-flagged) vs clean lines | no significant WER difference for Prisma (v2.5 +0.0 [−4.8, +5.1]; v3.0 +1.0 [−4.7, +7.0]) |
+| **Real AMR-NB codec** vs simulated μ-law line | no significant difference in 7 of 8 Prisma cells |
+| **Calls longer than 30 s** (78 s, 4 chunks split at pauses) | 96% of 25 amounts and dates kept, same as line by line (96.4%). One call: a smoke test |
+| **What broke** | the dropout detector (AUC 0.52 on real calls); zero-filled packet loss is optimistic |
+
+The real-call gap mixes channel with speaking style (spontaneous, regional speech vs read sentences), so it shows how
+much harder real calls are, not how much of that is the phone line. Gram Vaani is free for academic use only.
 
 ## Architecture
 
@@ -223,8 +242,10 @@ never logged or written to results, and a test checks this. The whole benchmark 
   bootstrap. "Significant" means the CI excludes 0.
 - **Limitations:**
   - **25 clips per language**, so many differences are honestly reported as ties.
-  - **Hinglish is synthetic TTS speech.** Real callers bring accents, disfluency and crosstalk.
-  - **Telephony is simulated:** Opus VoIP is covered, but AMR-NB mobile voice, echo and AGC are not.
+  - **Hinglish is synthetic TTS speech** (dev and held-out). Real speech is covered only by 60 Gram Vaani phone calls,
+    which are Hindi community-radio callers, not Hinglish customer care.
+  - **Simulated packet loss is optimistic.** `loss_5` zero-fills lost frames; real networks conceal them, and the
+    health check's dropout detector fails on real dropouts (AUC 0.52). Echo and AGC aren't simulated.
   - **Romanized WER is approximate.**
   - **The v2.5 `en-IN` config followed the original project spec.** It's kept on purpose as the default-style example.
 
