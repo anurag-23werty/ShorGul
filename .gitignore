@@ -18,3 +18,4 @@ results/audits/*/phone/
 results/audits/*/loss_5/
 results/audits/*/traffic_*/
 results/audits/*/market_*/
+!results/scored_full.parquet
