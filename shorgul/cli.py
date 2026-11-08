@@ -255,6 +255,15 @@ def stability_cmd() -> None:
     print(f"[chart] {rdir / 'charts' / 'stability_validation.png'}")
 
 
+@app.command("readme-gif")
+def readme_gif() -> None:
+    """Render docs/finding.gif from cached transcripts and results (needs libraqm for Devanagari)."""
+    from shorgul.config import ROOT
+    from shorgul.report.gif import build
+    out = build(ROOT / "docs" / "finding.gif")
+    print(f"[gif] {out} ({out.stat().st_size / 1024:.0f} KB)")
+
+
 @app.command("readme-tables")
 def readme_tables(mock: bool = typer.Option(False, help="Use results/mock/")) -> None:
     """Regenerate the README tables (with 95% CIs) from summary.csv and comparisons.csv."""
