@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.png" width="100%" alt="ShorGul: the same real call, clean, then through a phone line, then under 0 dB market noise, and the amount and date it still carries (₹4,500 · 5 March)"></p>
+
 # ShorGul
 
 **WER misleads Indian voice-AI teams, and here's the fix.**
