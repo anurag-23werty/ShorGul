@@ -197,6 +197,42 @@ def audit(
     print(f"[audit] report -> {report}")
 
 
+@app.command()
+def compare(
+    baseline: Path = typer.Option(None, help="Baseline results (parquet/csv with clip_id,condition,reference,hypothesis)"),
+    candidate: Path = typer.Option(None, help="Candidate results (same format; may be the same file)"),
+    baseline_model: str = typer.Option(None), candidate_model: str = typer.Option(None),
+    baseline_variant: str = typer.Option("raw"), candidate_variant: str = typer.Option("raw"),
+    metric: str = typer.Option("wer", help="wer (currency-neutral) | entity"),
+    fail_on: float = typer.Option(2.0, help="Fail if candidate is significantly worse by >= this many points"),
+    langs: str = typer.Option(None, help="Only these langs"),
+    mock: bool = typer.Option(False, help="Synthesize both sides with the mock ASR (CI smoke test, no audio/API)"),
+    mock_regress: bool = typer.Option(False, help="With --mock: make the candidate worse, to prove the gate fails"),
+) -> None:
+    """Regression gate: paired bootstrap, exit 1 on a significant regression >= --fail-on points."""
+    from shorgul.compare import gate, load_side, mock_side
+
+    if mock:
+        base = mock_side("prisma-v2.5", _split(langs))
+        cand = mock_side("whisper-small" if mock_regress else "prisma-v3.0", _split(langs))
+    else:
+        if not (baseline and candidate):
+            raise typer.BadParameter("--baseline and --candidate are required (or use --mock)")
+        base = load_side(baseline, baseline_model, baseline_variant)
+        cand = load_side(candidate, candidate_model, candidate_variant)
+    if langs:
+        base, cand = base[base["lang"].isin(_split(langs))], cand[cand["lang"].isin(_split(langs))]
+    g = gate(base, cand, metric, fail_on)
+    with pd.option_context("display.width", 200, "display.max_rows", 200):
+        print(g.table[g.table["condition"] == "ALL"].to_string(index=False))
+        worst = g.table[g.table["verdict"] != "no significant change"]
+        if len(worst):
+            print("\nper-condition changes:")
+            print(worst[worst["condition"] != "ALL"].to_string(index=False))
+    print(g.message)
+    raise typer.Exit(1 if g.regressed else 0)
+
+
 @app.command("stability")
 def stability_cmd() -> None:
     """Validate the label-free stability score against true WER increase on FLEURS."""

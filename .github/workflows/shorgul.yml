@@ -1,0 +1,29 @@
+name: shorgul
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: System deps
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Python deps
+        run: pip install -r requirements.txt
+      - name: Unit tests (no network, no API key)
+        run: python -m pytest -q
+      - name: Regression gate, mock mode (WER)
+        run: python -m shorgul.cli compare --mock --metric wer --fail-on 2
+      - name: Regression gate, mock mode (entities, Hinglish)
+        run: python -m shorgul.cli compare --mock --metric entity --langs hinglish --fail-on 2
+      - name: Gate must catch an injected regression
+        run: |
+          if python -m shorgul.cli compare --mock --mock-regress --metric wer --fail-on 2; then
+            echo "gate failed to catch a regression"; exit 1
+          fi
