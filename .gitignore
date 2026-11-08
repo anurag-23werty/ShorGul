@@ -23,3 +23,6 @@ data/human/*.wav
 data/human/*.flac
 data/human/*.ogg
 *.egg-info/
+data/human/*.m4a
+data/human/*.mp3
+data/human/refs.csv

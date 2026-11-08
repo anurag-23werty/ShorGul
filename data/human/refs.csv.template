@@ -1,0 +1,25 @@
+file,reference,entities,channel,line_id
+hh_000_direct.m4a,"सर, आपकी car loan की EMI ₹13,750 है और यह 4 जनवरी को auto-debit होगी।","₹13,750;4 जनवरी",direct,hh_000
+hh_000_call.m4a,"सर, आपकी car loan की EMI ₹13,750 है और यह 4 जनवरी को auto-debit होगी।","₹13,750;4 जनवरी",call,hh_000
+hh_002_direct.m4a,"आपका policy renewal ₹8,999 का है, last date 27 फरवरी है।","₹8,999;27 फरवरी",direct,hh_002
+hh_002_call.m4a,"आपका policy renewal ₹8,999 का है, last date 27 फरवरी है।","₹8,999;27 फरवरी",call,hh_002
+hh_004_direct.m4a,"हम आपको ₹2,400 का refund 11 सितंबर तक भेज देंगे।","₹2,400;11 सितंबर",direct,hh_004
+hh_004_call.m4a,"हम आपको ₹2,400 का refund 11 सितंबर तक भेज देंगे।","₹2,400;11 सितंबर",call,hh_004
+hh_005_direct.m4a,"मेरी salary ₹46,000 है, क्या मुझे ₹3,00,000 का personal loan मिल सकता है?","₹46,000;₹3,00,000",direct,hh_005
+hh_005_call.m4a,"मेरी salary ₹46,000 है, क्या मुझे ₹3,00,000 का personal loan मिल सकता है?","₹46,000;₹3,00,000",call,hh_005
+hh_007_direct.m4a,"credit card bill ₹19,640 का है, minimum due ₹980 है।","₹19,640;₹980",direct,hh_007
+hh_007_call.m4a,"credit card bill ₹19,640 का है, minimum due ₹980 है।","₹19,640;₹980",call,hh_007
+hh_010_direct.m4a,"मैंने 9 अप्रैल को ₹4,050 का bill pay किया था पर receipt नहीं आई।","9 अप्रैल;₹4,050",direct,hh_010
+hh_010_call.m4a,"मैंने 9 अप्रैल को ₹4,050 का bill pay किया था पर receipt नहीं आई।","9 अप्रैल;₹4,050",call,hh_010
+hh_011_direct.m4a,"आपका loan ₹2,75,000 का sanction हो गया है, disbursement 2 नवंबर को होगा।","₹2,75,000;2 नवंबर",direct,hh_011
+hh_011_call.m4a,"आपका loan ₹2,75,000 का sanction हो गया है, disbursement 2 नवंबर को होगा।","₹2,75,000;2 नवंबर",call,hh_011
+hh_014_direct.m4a,"मेरी EMI ₹11,200 से कम करके ₹9,800 कर दीजिए।","₹11,200;₹9,800",direct,hh_014
+hh_014_call.m4a,"मेरी EMI ₹11,200 से कम करके ₹9,800 कर दीजिए।","₹11,200;₹9,800",call,hh_014
+hh_017_direct.m4a,"आपके account से 28 दिसंबर को ₹12,000 ATM से निकाले गए थे।","28 दिसंबर;₹12,000",direct,hh_017
+hh_017_call.m4a,"आपके account से 28 दिसंबर को ₹12,000 ATM से निकाले गए थे।","28 दिसंबर;₹12,000",call,hh_017
+hh_019_direct.m4a,"insurance claim के ₹64,250 आपके account में 19 मई को आएंगे।","₹64,250;19 मई",direct,hh_019
+hh_019_call.m4a,"insurance claim के ₹64,250 आपके account में 19 मई को आएंगे।","₹64,250;19 मई",call,hh_019
+hh_022_direct.m4a,"electricity bill ₹2,315 का है, due date 24 मार्च है।","₹2,315;24 मार्च",direct,hh_022
+hh_022_call.m4a,"electricity bill ₹2,315 का है, due date 24 मार्च है।","₹2,315;24 मार्च",call,hh_022
+hh_024_direct.m4a,"सर, outstanding ₹5,670 है, आज pay करेंगे तो late fee ₹350 नहीं लगेगी।","₹5,670;₹350",direct,hh_024
+hh_024_call.m4a,"सर, outstanding ₹5,670 है, आज pay करेंगे तो late fee ₹350 नहीं लगेगी।","₹5,670;₹350",call,hh_024

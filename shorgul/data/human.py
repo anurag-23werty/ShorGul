@@ -1,6 +1,9 @@
 """Human validation set: your own Hinglish recordings in data/human/ + refs.csv.
 
-refs.csv columns: file,reference,entities   (entities ";"-separated, written form, e.g. "₹4,500;5 मार्च")
+refs.csv columns: file,reference,entities[,channel,line_id]
+  entities ";"-separated, written form (e.g. "₹4,500;5 मार्च")
+  channel: "direct" (phone voice memo) or "call" (recorded over a real phone/WhatsApp call)
+  line_id: the held-out line it reads (e.g. hh_000), so TTS and human can be compared on identical text
 Clips are added to the manifest as lang="hinglish_human", source="human", and reported separately from TTS.
 """
 from __future__ import annotations
@@ -31,11 +34,15 @@ def load_human(human_dir: Path, out_dir: Path) -> list[dict]:
         audio = read_wav(src)
         if len(audio) / SR > MAX_S:
             raise ValueError(f"{r.file} is {len(audio) / SR:.1f} s; Gnani STT accepts at most {MAX_S:.0f} s")
-        clip_id = f"hu_{i:03d}"
+        ents = getattr(r, "entities", "") or ""
+        channel = (getattr(r, "channel", "") or "").strip()
+        if channel and channel not in ("direct", "call"):
+            raise ValueError(f"{r.file}: channel must be 'direct' or 'call', got {channel!r}")
+        line = (getattr(r, "line_id", "") or "").strip()
+        clip_id = f"hu_{channel or 'x'}_{line or f'{i:03d}'}"
         wav = out_dir / f"{clip_id}.wav"
         write_wav(wav, audio)
-        ents = getattr(r, "entities", "") or ""
-        rows.append({"clip_id": clip_id, "lang": "hinglish_human", "source": "human",
+        rows.append({"clip_id": clip_id, "lang": "hinglish_human", "source": f"human_{channel}" if channel else "human",
                      "audio_path": str(wav.relative_to(ROOT)), "duration_s": round(len(audio) / SR, 3),
                      "reference": r.reference, "has_entities": bool(ents), "entities": ents})
     return rows
