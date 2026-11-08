@@ -8,13 +8,13 @@ Read each line **naturally, the way you would on a real customer-care call**. Do
 **A · direct** (`<id>_direct.m4a`): your phone's voice-memo app, normal room, phone at a normal distance.
 
 **B · real call** (`<id>_call.m4a`): the same line spoken **over an actual phone call**, recorded on the *receiving* end.
-Easiest options, pick one:
-- Call your own second phone / a friend's phone; record on the receiving phone (Android has built-in call recording).
-- WhatsApp-call a laptop (WhatsApp Desktop) and record the laptop's audio (macOS: QuickTime → New Audio Recording won't capture
-  system audio; use the receiving *phone* on speaker next to a second phone's voice memo instead). This is less clean but still real.
-- Put a cellular call (not Wi-Fi calling) first if you can: that is the real 8 kHz path the benchmark simulates.
+Pick one way:
+- **Best:** a normal cellular call (not Wi-Fi calling, not WhatsApp) to a second phone, with call recording on the receiving phone
+  (built into most Android dialers). That's the real 8 kHz phone path the benchmark simulates.
+- **If you can't record calls:** call a second phone, put it on speaker, and record that speaker with a third device's voice memo.
+  This adds some room sound, but it's still a real network path.
 
-Note in the PR which option you used. Any format works (m4a/wav/mp3/ogg); the loader converts.
+Write down which way you used (it goes in the report). Any audio format works (m4a, wav, mp3 or ogg); the loader converts it.
 
 ## Lines
 
