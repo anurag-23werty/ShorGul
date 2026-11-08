@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from shorgul.config import load_config
+from shorgul.entities.repair import repair
 from shorgul.metrics.entities import entity_hit_rate
 from shorgul.metrics.wer_cer import error_counts, prep
 from shorgul.stats.bootstrap import ci, paired
@@ -14,7 +15,7 @@ RESULT_COLS = ["clip_id", "lang", "source", "condition", "variant", "model", "re
                "hypothesis", "wer", "cer", "entity_hit_rate", "latency_s", "status"]
 GROUP = ["lang", "model", "variant", "condition"]
 SCRIPT_RANGES = {"hi": ("ऀ", "ॿ"), "bn": ("ঀ", "৿"), "ta": ("஀", "௿")}
-CI_METRICS = ["wer", "wer_cn", "cer", "entity_hit_rate"]
+CI_METRICS = ["wer", "wer_cn", "cer", "entity_hit_rate", "wer_rep", "entity_rep", "wer_cn_rep"]
 
 
 def wrong_script(hypothesis: str, lang: str) -> bool:
@@ -43,6 +44,16 @@ def score_rows(hyps: pd.DataFrame) -> pd.DataFrame:
     out["cer"] = out["char_err"] / out["ref_chars"].clip(lower=1)
     out["entity_hit_rate"] = [entity_hit_rate(e, h) if good else np.nan
                               for e, h, good in zip(out["entities"], out["hypothesis"], ok)]
+    # entity repair (Phase C): same metrics on the repaired transcript
+    out["hyp_repaired"] = [repair(h) if good else h for h, good in zip(out["hypothesis"], ok)]
+    rep = np.array([error_counts(r, h, l) for r, h, l in zip(out["reference"], out["hyp_repaired"], out["lang"])])
+    out["word_err_rep"] = pd.Series(rep[:, 0], index=out.index).astype(float).where(ok)
+    out["wer_rep"] = out["word_err_rep"] / out["ref_words"].clip(lower=1)
+    cn_rep = [error_counts(r, h, l, currency_neutral=(l == "hinglish"))[0]
+              for r, h, l in zip(out["reference"], out["hyp_repaired"], out["lang"])]
+    out["word_err_cn_rep"] = pd.Series(cn_rep, index=out.index).astype(float).where(ok)
+    out["entity_hit_rate_rep"] = [entity_hit_rate(e, h) if good else np.nan
+                                  for e, h, good in zip(out["entities"], out["hyp_repaired"], ok)]
     hyp_norm = [prep(h, l) for h, l in zip(out["hypothesis"], out["lang"])]
     # hallucination / repetition loops: hypothesis >2x longer than the reference (words or chars)
     out["runaway"] = ((np.array([len(h.split()) for h in hyp_norm]) > 2 * out["ref_words"])
@@ -112,7 +123,33 @@ def compare(scored: pd.DataFrame) -> pd.DataFrame:
                                     condition=scope, metric=m, diff=r.point, lo=r.lo, hi=r.hi, p=r.p,
                                     n_clips=r.n_clips, verdict=verdict))
     out += _degradation_vs_clean(ok)
+    out += _repair_effect(ok)
     return pd.DataFrame(out).round(4)
+
+
+def _repair_effect(ok: pd.DataFrame) -> list[dict]:
+    """Same transcripts, repaired minus raw (paired). Entity accuracy on Hinglish; WER everywhere."""
+    out = []
+    for (lang, model, variant), g in ok.groupby(["lang", "model", "variant"]):
+        pairs = [("wer", "wer_rep", "word_err_rep", "word_err")]
+        if lang == "hinglish":
+            pairs += [("wer_cn", "wer_cn_rep", "word_err_cn_rep", "word_err_cn"),
+                      ("entity_hit_rate", "entity_rep", "entity_hit_rate_rep", "entity_hit_rate")]
+        for metric, _, rep_col, raw_col in pairs:
+            a = g.assign(**{raw_col: g[rep_col]})  # A = repaired values under the raw metric's column
+            for scope in list(load_config()["conditions"]) + ["ALL"]:
+                aa = a if scope == "ALL" else a[a["condition"] == scope]
+                bb = g if scope == "ALL" else g[g["condition"] == scope]
+                r = paired(aa, bb, metric)
+                if r.n_clips == 0:
+                    continue
+                good = (r.point < 0) if metric.startswith("wer") else (r.point > 0)
+                verdict = ("no significant change" if not r.significant
+                           else f"repair significantly {'helps' if good else 'hurts'}")
+                out.append(dict(comparison="repaired vs raw", A=f"{model}/{variant}+repair", B=f"{model}/{variant}",
+                                lang=lang, condition=scope, metric=metric, diff=r.point, lo=r.lo, hi=r.hi,
+                                p=r.p, n_clips=r.n_clips, verdict=verdict))
+    return out
 
 
 def _degradation_vs_clean(ok: pd.DataFrame) -> list[dict]:
