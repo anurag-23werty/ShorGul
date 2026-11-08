@@ -41,6 +41,7 @@ class AuditResult:
     clips: pd.DataFrame          # one row per clip
     rows: pd.DataFrame           # one row per clip x condition
     summary: dict = field(default_factory=dict)
+    mock: bool = False
 
 
 def _numbers(text: str) -> set[str]:
@@ -98,7 +99,9 @@ def run_audit(folder: Path, lang: str, model: str, max_calls: int, mock: bool, o
     hyps = run_jobs(jobs, mock=mock, max_calls=max_calls, cache=Cache.default(mock))
     if hyps.empty:
         raise RuntimeError("no transcripts: raise --max-calls or use --mock")
-    return _analyse(out.name, lang, model, conditions, clips, hyps)
+    res = _analyse(out.name, lang, model, conditions, clips, hyps)
+    res.mock = mock
+    return res
 
 
 def _analyse(name: str, lang: str, model: str, conditions: list[str], clips: pd.DataFrame,

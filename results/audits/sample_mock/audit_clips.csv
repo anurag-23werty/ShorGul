@@ -1,0 +1,7 @@
+clip_id,file,snr_db,hf_ratio,clipping_pct,speech_pct,dropout_pct,duration_s,nearest_condition
+hg_000,hg_000.wav,47.823,0.005,0.0,70.455,0.0,5.28,clean
+hg_001,hg_001.wav,45.578,0.002,0.0,75.0,0.0,5.44,clean
+hg_002,hg_002.wav,54.014,0.009,0.0,79.514,0.0,5.76,clean
+hg_003,hg_003.wav,50.711,0.003,0.003,78.017,0.0,4.64,clean
+hg_004,hg_004.wav,43.477,0.007,0.001,72.348,0.0,5.28,clean
+hg_005,hg_005.wav,57.401,0.002,0.0,72.857,0.0,5.6,clean

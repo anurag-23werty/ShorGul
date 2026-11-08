@@ -15,6 +15,7 @@ th{color:var(--ink2);font-weight:600}img{max-width:100%;height:auto}del{backgrou
 .tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;border:1px solid var(--line)}.yes{color:#1baf7a}.no{color:#e34948}.maybe{color:#eda100}
 audio{width:100%;max-width:420px;height:32px}.scroll{overflow-x:auto}
 </style></head><body><main>
+{% if r.mock %}<div class="card" style="border-color:#e34948;color:#e34948"><b>MOCK DATA:</b> transcripts are synthetic (no ASR was called). This report shows the format only; its grade means nothing.</div>{% endif %}
 <h1>ShorGul telephony audit</h1>
 <div class="muted">{{ r.name }} · {{ s.n_clips }} clips · language <b>{{ r.lang }}</b> · model <b>{{ r.model }}</b> · {{ today }}</div>
 
