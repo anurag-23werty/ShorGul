@@ -68,3 +68,24 @@
 | Prisma v3.0 | 96% → 97% | +1.3 [+0.0, +4.0] | -7.7 [-8.9, -6.6] * | -0.4 [-1.3, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
 | Whisper-small | 18% → 25% | +7.8 [+2.4, +14.2] * | -3.3 [-5.6, -1.4] * | -3.3 [-5.6, -1.4] * |
+
+## findings
+
+| finding | number (95% CI) | test |
+|---|---|---|
+| One API setting decides whether amounts survive (Hinglish, same audio) | Prisma v2.5 entity accuracy, `hi-IN` − `en-IN`: **+93.6 [+86.2, +99.6] pts** | paired bootstrap, 25 clips × all conditions |
+| Phone line, AMR-NB, Opus, packet loss, traffic, 10 dB market | no significant WER change in **52 of 56** Prisma model × language × condition cells | paired bootstrap vs clean, same clips |
+| 0 dB market babble | significant WER increase in **7 of 8** Prisma cells (+2.7 to +15.3 pts) | paired bootstrap vs clean |
+| Prisma v3.0 vs v2.5, read speech (Hindi) | WER +3.1 [+2.1, +4.2] pts (v3.0 − v2.5) | paired bootstrap, all conditions |
+| Prisma v3.0 vs v2.5, read speech (Bengali) | WER +3.8 [+1.6, +6.6] pts (v3.0 − v2.5) | paired bootstrap, all conditions |
+| Prisma v3.0 vs v2.5, read speech (Tamil) | WER +4.1 [+0.5, +8.7] pts (v3.0 − v2.5) | paired bootstrap, all conditions |
+| Prisma v3.0 vs v2.5, Hinglish, same config (currency-neutral WER) | -1.7 [-5.1, +1.7] pts: tie | paired bootstrap |
+| Prisma v3.0 vs v2.5, Hinglish, same config (entity accuracy) | +2.4 [+0.0, +6.9] pts: tie | paired bootstrap |
+| Generic denoiser (spectral gating) before Prisma | WER significantly higher in **5 of 6** Prisma × language cells | paired bootstrap, noisy conditions pooled |
+| Entity repair on unseen lines (Prisma v2.5 `en-IN` output) | 0% → **94 [90, 98]%** entity accuracy | held-out: 25 lines committed before any audio existed |
+| Prisma v2.5 on 60 real phone calls (Gram Vaani, Hindi) | WER 16.1 [13.7, 19.0]% | bootstrap over calls |
+| Prisma v3.0 on 60 real phone calls (Gram Vaani, Hindi) | WER 18.9 [16.2, 22.1]% | bootstrap over calls |
+| Prisma v3.0 vs v2.5 on the same real calls | WER +2.7 [+0.3, +5.3] pts | paired bootstrap |
+| Whisper-small, clean Hindi read speech | WER 79.3 [53.6, 109.2]% | bootstrap over clips |
+| Whisper-small, clean Tamil read speech | WER 73.5 [61.8, 90.2]% | bootstrap over clips |
+| Whisper-small, Bengali | writes Devanagari script in 99% of transcripts | script check per transcript |

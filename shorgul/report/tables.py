@@ -108,11 +108,81 @@ def repair_table(s: pd.DataFrame, c: pd.DataFrame) -> str:
     return "\n".join(out)
 
 
+def findings_table(s: pd.DataFrame, c: pd.DataFrame, results_dir: Path) -> str:
+    """The README's headline findings: one row each, number with 95% CI, and the test behind it."""
+    import json
+
+    from shorgul.stats.bootstrap import paired
+    sc = pd.read_parquet(results_dir / "scored_full.parquet")
+    sc = sc[sc["status"].str.startswith("ok")]
+    v = json.loads((results_dir / "validation.json").read_text()) if (results_dir / "validation.json").exists() else {}
+    h = sc[sc["lang"] == "hinglish"]
+    cfg = paired(h[(h.model == "prisma-v2.5") & (h.variant == "matched")], h[(h.model == "prisma-v2.5") & (h.variant == "raw")],
+                 "entity_hit_rate")
+    rows = []
+
+    def ci_s(pt, lo, hi, d=1, sign=False):
+        f = (lambda x: f"{x * 100:+.{d}f}") if sign else (lambda x: f"{x * 100:.{d}f}")
+        return f"{f(pt)} [{f(lo)}, {f(hi)}]"
+
+    rows.append(("One API setting decides whether amounts survive (Hinglish, same audio)",
+                 f"Prisma v2.5 entity accuracy, `hi-IN` − `en-IN`: **{ci_s(cfg.point, cfg.lo, cfg.hi, sign=True)} pts**",
+                 f"paired bootstrap, {cfg.n_clips} clips × all conditions"))
+    deg = c[c.comparison.str.endswith("vs clean") & (c.metric == "wer") & c.A.str.startswith("prisma")
+            & c.lang.isin(["hi", "bn", "ta", "hinglish"])]
+    non0, m0 = deg[deg.condition != "market_0"], deg[deg.condition == "market_0"]
+    rows.append(("Phone line, AMR-NB, Opus, packet loss, traffic, 10 dB market",
+                 f"no significant WER change in **{(non0.verdict == 'no significant change').sum()} of {len(non0)}** "
+                 "Prisma model × language × condition cells", "paired bootstrap vs clean, same clips"))
+    rows.append(("0 dB market babble", f"significant WER increase in **{(m0.verdict != 'no significant change').sum()} of {len(m0)}** "
+                 f"Prisma cells (+{m0['diff'].min() * 100:.1f} to +{m0['diff'].max() * 100:.1f} pts)", "paired bootstrap vs clean"))
+    for lang, name in (("hi", "Hindi"), ("bn", "Bengali"), ("ta", "Tamil")):
+        q = c[(c.comparison == "v3.0 vs v2.5") & (c.metric == "wer") & (c.lang == lang) & (c.condition == "ALL")]
+        if len(q):
+            q = q.iloc[0]
+            rows.append((f"Prisma v3.0 vs v2.5, read speech ({name})", f"WER {ci_s(q['diff'], q.lo, q.hi, sign=True)} pts "
+                         f"(v3.0 − v2.5)", "paired bootstrap, all conditions"))
+    for m, label in (("wer_cn", "currency-neutral WER"), ("entity_hit_rate", "entity accuracy")):
+        q = c[(c.comparison == "v3.0 matched vs v2.5 matched") & (c.metric == m) & (c.condition == "ALL")].iloc[0]
+        rows.append((f"Prisma v3.0 vs v2.5, Hinglish, same config ({label})", f"{ci_s(q['diff'], q.lo, q.hi, sign=True)} pts: "
+                     f"{'tie' if 'tie' in q.verdict else q.verdict}", "paired bootstrap"))
+    d = c[c.comparison.str.endswith("denoised vs raw") & (c.condition == "ALL") & (c.metric == "wer")
+          & c.A.str.startswith("prisma") & (c.lang != "hinglish")]
+    rows.append(("Generic denoiser (spectral gating) before Prisma", f"WER significantly higher in **{d.verdict.str.contains('raw better').sum()} "
+                 f"of {len(d)}** Prisma × language cells", "paired bootstrap, noisy conditions pooled"))
+    for x in v.get("heldout", []):
+        if "en-IN" in x["system"]:
+            r = x["held_rep"]
+            rows.append(("Entity repair on unseen lines (Prisma v2.5 `en-IN` output)", f"0% → **{ci_s(*r, d=0)}%** entity accuracy",
+                         f"held-out: {v['heldout_lines']} lines committed before any audio existed"))
+    for rc in v.get("real_calls", []):
+        if rc["model"] in ("Prisma v2.5", "Prisma v3.0"):
+            a = rc["all"]
+            rows.append((f"{rc['model']} on {v['real_calls_n']} real phone calls (Gram Vaani, Hindi)", f"WER {ci_s(*a)}%",
+                         "bootstrap over calls"))
+    if "real_v30_minus_v25" in v:
+        p = v["real_v30_minus_v25"]
+        rows.append(("Prisma v3.0 vs v2.5 on the same real calls", f"WER {ci_s(p[0], p[1], p[2], sign=True)} pts", "paired bootstrap"))
+    w = s[(s.model == "whisper-small") & (s.variant == "raw") & (s.condition == "clean")].set_index("lang")
+    for lang, name in (("hi", "Hindi"), ("ta", "Tamil")):
+        if lang in w.index:
+            r = w.loc[lang]
+            rows.append((f"Whisper-small, clean {name} read speech", f"WER {ci_s(r.wer, r.wer_lo, r.wer_hi)}%", "bootstrap over clips"))
+    if "bn" in w.index:
+        bn = s[(s.model == "whisper-small") & (s.variant == "raw") & (s.lang == "bn")]
+        rows.append(("Whisper-small, Bengali", f"writes Devanagari script in {bn.wrong_script_rate.mean() * 100:.0f}% of transcripts",
+                     "script check per transcript"))
+    out = ["| finding | number (95% CI) | test |", "|---|---|---|"]
+    out += [f"| {a} | {b} | {t} |" for a, b, t in rows]
+    return "\n".join(out)
+
+
 def render(results_dir: Path) -> dict[str, str]:
     s = pd.read_csv(results_dir / "summary.csv")
     c = pd.read_csv(results_dir / "comparisons.csv")
     return {"wer": wer_table(s), "entity": entity_table(s), "claims": claims_table(c),
-            "degradation": degradation_table(c), "repair": repair_table(s, c)}
+            "degradation": degradation_table(c), "repair": repair_table(s, c),
+            "findings": findings_table(s, c, results_dir)}
 
 
 def update_readme(readme: Path, tables: dict[str, str]) -> list[str]:

@@ -317,6 +317,8 @@ def readme_tables(mock: bool = typer.Option(False, help="Use results/mock/")) ->
     done = update_readme(ROOT / "README.md", tables) if not mock else []
     if not mock:
         update_readme(results_dir(mock) / "repair_report.md", tables)
+        if (ROOT / "docs" / "RESULTS.md").exists():
+            done += [f"RESULTS.md:{t}" for t in update_readme(ROOT / "docs" / "RESULTS.md", tables)]
     print(f"[tables] key_numbers.md written; README tables updated: {done or 'none (no markers)'}")
 
 

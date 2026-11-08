@@ -1,5 +1,10 @@
 # Finding check (Phase A)
 
+> **Note (later runs):** the numbers below were pooled over the original 7 conditions. After AMR-NB and Opus were
+> added (9 conditions), the pooled values moved slightly: currency-neutral WER v3.0 − v2.5 is −1.7 [−5.1, +1.7]
+> (tie), entity accuracy +2.4 [+0.0, +6.9] (tie), as-scored WER +5.6 [+2.2, +9.0] (v2.5 better). **No verdict changed.**
+> The current values are in the README's generated Findings table.
+
 **Verdict: (b), it's an evaluation-config artifact.** On the same audio, the two Prisma models are
 statistically tied on Hinglish once both are configured the same way and scored on a
 convention-neutral basis. The earlier headline "WER picks the wrong model" is **not supported**
