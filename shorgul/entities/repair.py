@@ -235,7 +235,8 @@ def repair(text: str) -> str:
             out.append(f"{n}{last_tail}")
             i = ph.end
         elif ph.has_scale and not all_digits:
-            out.append(f"{indian_group(n)}{last_tail}")
+            # plain numbers: group only large ones; "दो हज़ार अठारह" is the year 2018, not 2,018
+            out.append(f"{indian_group(n) if n >= 10_000 else n}{last_tail}")
             i = ph.end
         else:  # unanchored: leave the words exactly as they were
             out.append(tok.raw)

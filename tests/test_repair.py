@@ -21,6 +21,8 @@ CONVERT = [
     ("paune do hazaar rupay", "₹1,750"),
     ("sava lakh rupaye", "₹1,25,000"),
     ("dhai lakh", "2,50,000"),
+    ("दो हज़ार अठारह में", "2018 में"),                       # a year, not 2,018 (found on real calls)
+    ("पंद्रह सौ बावन सदस्य", "1552 सदस्य"),
     # --- Devanagari amounts (Whisper / verbatim style) ---
     ("चालीस हज़ार रुपये", "₹40,000"),
     ("चार हजार पांच सौ रुपये", "₹4,500"),
