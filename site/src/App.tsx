@@ -4,6 +4,7 @@ import { Curves } from "./components/Curves";
 import { Finding } from "./components/Finding";
 import { Fix } from "./components/Fix";
 import { Hero } from "./components/Hero";
+import { Pipeline } from "./components/Pipeline";
 import { Users } from "./components/Users";
 import type { Data } from "./lib/data";
 import { loadData } from "./lib/data";
@@ -32,6 +33,7 @@ export default function App() {
         <Fix data={data} />
         <Curves data={data} />
         <Users data={data} />
+        <Pipeline data={data} />
       </main>
     </>
   );
