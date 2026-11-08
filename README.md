@@ -4,6 +4,7 @@
 
 [![tests](https://github.com/anurag-23werty/ShorGul/actions/workflows/shorgul.yml/badge.svg)](https://github.com/anurag-23werty/ShorGul/actions/workflows/shorgul.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
+[![licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE)
 
 [Detailed results](docs/RESULTS.md) · [Validation on real audio](results/validation.md) · [How the headline was checked](results/finding_check.md) · [Pilot protocol](docs/PILOT.md)
 
@@ -131,6 +132,7 @@ flowchart LR
 | DEMAND (STRAFFIC, SPSQUARE, PCAFETER) | noise; 20 s excerpts bundled in `samples/noise` | CC BY-SA 3.0, doi:10.5281/zenodo.1227121 |
 | Gram Vaani ASR challenge eval (OpenSLR 118) | 60 real phone calls, **reported as aggregate numbers only**; no audio or transcripts in this repo | free for academic use; commercial use needs permission |
 | Geist / Geist Mono | banner and site type | SIL OFL 1.1 (`assets/fonts/OFL.txt`) |
+| ShorGul code | everything else | MIT ([LICENSE](LICENSE)) |
 
 Playable audio in this repo and on the site is FLEURS or synthetic TTS only.
 

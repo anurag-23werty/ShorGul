@@ -7,6 +7,7 @@ name = "shorgul"
 version = "0.1.0"
 description = "Telephony robustness and entity-accuracy testing for Indian-language ASR"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 
 [project.scripts]
 shorgul = "shorgul.cli:app"
