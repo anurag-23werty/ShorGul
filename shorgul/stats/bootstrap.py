@@ -23,6 +23,7 @@ METRICS: dict[str, tuple[str, str | None]] = {
     "wer_rep": ("word_err_rep", "ref_words"),         # after entity repair
     "entity_rep": ("entity_hit_rate_rep", None),
     "wer_cn_rep": ("word_err_cn_rep", "ref_words_cn"),  # currency-neutral, after repair
+    "stability": ("stability", None),                   # audit: CER(original, degraded transcript)
 }
 
 

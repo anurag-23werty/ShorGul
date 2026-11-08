@@ -165,6 +165,38 @@ def score(
             print(f"[chart] {p}")
 
 
+@app.command()
+def audit(
+    folder: Path = typer.Argument(..., help="Folder of your audio files (wav/flac/ogg/mp3, <= 30 s each)"),
+    lang: str = typer.Option(..., help="hi | bn | ta | hinglish"),
+    model: str = typer.Option("prisma-v3.0", help="prisma-v2.5 | prisma-v3.0 | whisper-small"),
+    max_calls: int = typer.Option(0, help="Max NEW billed calls. Needed = clips x (1 + conditions)"),
+    mock: bool = typer.Option(False, help="Fake transcripts, no API: try the report for free"),
+    refs: Path = typer.Option(None, help="Optional refs.csv (file,reference,entities) for WER/entity accuracy"),
+    conditions: str = typer.Option(None, help="Comma list (default: phone,loss_5,traffic_5,market_0)"),
+    out: Path = typer.Option(None, help="Output dir (default results/audits/<folder name>)"),
+) -> None:
+    """Audit your own audio: health check, stability grade A-F, breaking point, fixes -> report.html."""
+    from shorgul.audit.report import render
+    from shorgul.audit.run import DEFAULT_CONDITIONS, collect, plan_calls, run_audit
+
+    conds = _split(conditions) or DEFAULT_CONDITIONS
+    n = len(collect(folder))
+    need = plan_calls(n, len(conds))
+    out = out or path("results") / "audits" / folder.name
+    print(f"[audit] {n} clips x (1 original + {len(conds)} conditions) = {need} transcriptions "
+          f"({'MOCK, 0 billed' if mock or model == 'whisper-small' else f'up to {need} billed, cap {max_calls}'})")
+    res = run_audit(folder, lang, model, max_calls, mock, out, conds, refs)
+    report = render(res, out)
+    res.rows.to_csv(out / "audit_rows.csv", index=False)
+    res.clips.to_csv(out / "audit_clips.csv", index=False)
+    s = res.summary
+    print(f"[audit] grade {s['grade']} | mean stability {s['mean_stability']:.1%} | breaking point "
+          f"{s['breaking_point'] or 'none'} | nearest: {s['nearest']}")
+    print(s["per_condition"].round(3).to_string(index=False))
+    print(f"[audit] report -> {report}")
+
+
 @app.command("stability")
 def stability_cmd() -> None:
     """Validate the label-free stability score against true WER increase on FLEURS."""

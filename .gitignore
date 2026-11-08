@@ -13,3 +13,8 @@ results/*.parquet
 .DS_Store
 results/errors.jsonl
 !results/results.parquet
+results/audits/*/original/
+results/audits/*/phone/
+results/audits/*/loss_5/
+results/audits/*/traffic_*/
+results/audits/*/market_*/

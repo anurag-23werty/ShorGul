@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShorGul Audit</title>
+<style>
+:root{--bg:#fcfcfb;--card:#ffffff;--ink:#0b0b0b;--ink2:#52514e;--line:#e6e5e0;--del:#fde2e1;--ins:#dcf3e6;--accent:#2a78d6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1a1a19;--card:#232322;--ink:#f0efec;--ink2:#c3c2b7;--line:#3a3a38;--del:#5a2524;--ins:#1e4a33;--accent:#3987e5}}
+:root[data-theme="dark"]{--bg:#1a1a19;--card:#232322;--ink:#f0efec;--ink2:#c3c2b7;--line:#3a3a38;--del:#5a2524;--ins:#1e4a33;--accent:#3987e5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 16px 64px}h1{font-size:24px;margin:0 0 4px}h2{font-size:17px;margin:32px 0 10px}
+.muted{color:var(--ink2);font-size:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+.hero{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.grade{font-size:56px;font-weight:700;line-height:1;width:84px;height:84px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;flex:1}.kpi b{display:block;font-size:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink2);font-weight:600}img{max-width:100%;height:auto}del{background:var(--del);text-decoration:line-through}ins{background:var(--ins);text-decoration:none}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;border:1px solid var(--line)}.yes{color:#1baf7a}.no{color:#e34948}.maybe{color:#eda100}
+audio{width:100%;max-width:420px;height:32px}.scroll{overflow-x:auto}
+</style></head><body><main>
+<h1>ShorGul telephony audit</h1>
+<div class="muted">{{ r.name }} · {{ s.n_clips }} clips · language <b>{{ r.lang }}</b> · model <b>{{ r.model }}</b> · {{ today }}</div>
+
+<div class="card hero">
+  <div class="grade" style="background:{{ grade_color[s.grade] }}" aria-label="grade {{ s.grade }}">{{ s.grade }}</div>
+  <div class="kpis">
+    <div class="kpi"><span class="muted">Mean stability</span><b>{{ '%.1f'|format(s.mean_stability*100) }}%</b><span class="muted">≈ expected WER increase</span></div>
+    <div class="kpi"><span class="muted">Breaking point</span><b>{{ s.breaking_point or 'none tested' }}</b><span class="muted">first condition ≥ {{ '%d'|format(break_at*100) }}% change</span></div>
+    <div class="kpi"><span class="muted">Your audio looks like</span><b>{% for c, n in s.nearest.items() %}{{ c }}{% if not loop.last %}, {% endif %}{% endfor %}</b><span class="muted">nearest benchmark condition</span></div>
+  </div>
+</div>
+<p>{{ grade_text }}</p>
+
+<h2>Stability under simulated call conditions</h2>
+<div class="card"><img src="{{ chart }}" alt="Stability per condition">
+<div class="scroll"><table><tr><th>condition</th><th>stability [95% CI]</th><th>grade</th><th>entity retention</th></tr>
+{% for c in s.per_condition.itertuples() %}<tr><td>{{ c.condition }}</td><td>{{ '%.1f'|format(c.stability*100) }}% [{{ '%.1f'|format(c.lo*100) }}, {{ '%.1f'|format(c.hi*100) }}]</td><td>{{ c.grade }}</td>
+<td>{% if c.entity_retention == c.entity_retention %}{{ '%.0f'|format(c.entity_retention*100) }}%{% else %}–{% endif %}</td></tr>{% endfor %}
+</table></div>
+<p class="muted">Stability = CER between the model's transcript of your original audio and of the degraded copy; no reference needed.
+Validated on FLEURS: for Prisma, mean stability tracks the true WER increase (Spearman ρ = 0.59 per folder, points near y = x).
+It is <b>not</b> calibrated for Whisper. Entity retention = share of amounts/dates in the original transcript that survive.</p></div>
+
+{% if s.benchmark %}<h2>What the benchmark predicts for audio like yours</h2>
+<div class="card scroll"><table><tr><th>nearest condition</th><th>your clips</th><th>benchmark corpus WER [95% CI]</th><th>basis</th></tr>
+{% for b in s.benchmark %}<tr><td>{{ b.condition }}</td><td>{{ b.clips }}</td><td>{{ '%.1f'|format(b.wer*100) }}% [{{ '%.1f'|format(b.lo*100) }}, {{ '%.1f'|format(b.hi*100) }}]</td><td class="muted">{{ b.basis }}</td></tr>{% endfor %}
+</table></div>{% endif %}
+
+<h2>Recommended fixes</h2>
+<div class="card scroll"><table><tr><th>fix</th><th>verdict</th><th>evidence</th></tr>
+{% for f in s.fixes %}<tr><td>{{ f.fix }}</td><td>{% if f.recommend is true %}<span class="tag yes">✓ do it</span>{% elif f.recommend is false %}<span class="tag no">✗ avoid</span>{% else %}<span class="tag maybe">? optional</span>{% endif %}</td><td class="muted">{{ f.evidence }}</td></tr>{% endfor %}
+</table></div>
+
+<h2>3 least stable clips</h2>
+{% for w in worst %}<div class="card"><b>{{ w.clip_id }}</b> <span class="muted">· worst under {{ w.condition }} ({{ '%.1f'|format(w.stability*100) }}% change) · mean {{ '%.1f'|format(w.mean_stability*100) }}%</span>
+<div class="muted" style="margin-top:6px">original audio → degraded ({{ w.condition }})</div>
+{% if w.audio_original %}<audio controls src="{{ w.audio_original }}"></audio>{% endif %} {% if w.audio_degraded %}<audio controls src="{{ w.audio_degraded }}"></audio>{% endif %}
+<p style="margin:8px 0 0">{{ w.diff|safe }}</p><p class="muted">struck = in original transcript only · highlighted = only after degradation</p></div>{% endfor %}
+
+<h2>Audio health per clip</h2>
+<div class="card scroll"><table><tr><th>clip</th><th>SNR est.</th><th>energy &gt;4.2 kHz</th><th>dropouts</th><th>clipping</th><th>duration</th><th>nearest condition</th></tr>
+{% for c in clips %}<tr><td>{{ c.clip_id }}</td><td>{{ '%.1f'|format(c.snr_db) }} dB</td><td>{{ '%.4f'|format(c.hf_ratio) }}</td><td>{{ '%.1f'|format(c.dropout_pct) }}%</td><td>{{ '%.2f'|format(c.clipping_pct) }}%</td><td>{{ '%.1f'|format(c.duration_s) }} s</td><td>{{ c.nearest_condition }}</td></tr>{% endfor %}
+</table></div>
+<p class="muted">Generated by ShorGul (github: ShorGul Bench). Built on Gnani Prisma v2.5 / v3.0. Grades: A &lt;2%, B &lt;5%, C &lt;10%, D &lt;20%, F ≥20% mean stability.</p>
+</main></body></html>

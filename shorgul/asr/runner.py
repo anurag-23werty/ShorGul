@@ -123,7 +123,9 @@ def run_jobs(jobs: list[Job], mock: bool, max_calls: int, dry_run: bool = False,
             if backend.billed and calls >= max_calls:
                 skipped += 1
                 continue
-            extra = {"_reference": job.row["reference"], "_condition": job.condition, "_variant": job.variant}
+            # mock backends need text to corrupt: audits without references pass a placeholder (mock_text)
+            extra = {"_reference": job.row.get("mock_text") or job.row["reference"], "_condition": job.condition,
+                     "_variant": job.variant}
             res = backend.transcribe(audio, {**job.params, **extra})
             calls += backend.billed
             if res.cacheable:
