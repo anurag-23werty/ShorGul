@@ -157,3 +157,12 @@ def test_403_twice_gives_up():
     sess = FakeSession([FakeResp(403), FakeResp(403)])
     res = PrismaASR("prisma-v3.0", session=sess, sleep=lambda s: None).transcribe(_wav_bytes(), {})
     assert res.status == "error_403" and len(sess.calls) == 2
+
+
+def test_matched_variant_identical_params_for_both_prisma():
+    from shorgul.asr.runner import applies
+    hing = {"lang": "hinglish", "has_entities": True}
+    a, b = params_for("prisma-v2.5", hing, "matched"), params_for("prisma-v3.0", hing, "matched")
+    assert a == b == {"language_code": "hi-IN", "format": "transcribe"}
+    assert not applies("whisper-small", "matched", "clean", hing)
+    assert not applies("prisma-v3.0", "matched", "clean", {"lang": "hi"})

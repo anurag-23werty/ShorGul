@@ -16,7 +16,7 @@ from shorgul.asr.cache import Cache, asr_key
 from shorgul.config import load_config, path
 
 MODELS = ["prisma-v2.5", "prisma-v3.0", "whisper-small"]
-VARIANTS = ["raw", "denoised", "context"]
+VARIANTS = ["raw", "denoised", "context", "matched"]
 KEY_COLS = ["clip_id", "condition", "variant", "model"]
 
 
@@ -30,7 +30,7 @@ class Job:
     params: dict[str, Any]
 
 
-def audio_path_for(clip_id: str, condition: str, variant: str) -> Path:
+def audio_path_for(clip_id: str, condition: str, variant: str) -> Path:  # matched/context use raw audio
     base = path("enhanced") if variant == "denoised" else path("degraded")
     return base / condition / f"{clip_id}.wav"
 
@@ -44,6 +44,8 @@ def params_for(model: str, row: dict, variant: str) -> dict[str, Any]:
         "language_code": asr["lang_codes"][model][lang],
         "format": "transcribe" if row["has_entities"] in (True, "True") else "verbatim",
     }
+    if variant == "matched":  # identical config for both Prisma models (Phase A finding check)
+        return {"language_code": "hi-IN", "format": "transcribe"}
     if variant == "context":
         ctx = asr["context"]
         p["topic"] = ctx["topic"]
@@ -57,6 +59,8 @@ def applies(model: str, variant: str, condition: str, row: dict) -> bool:
         return condition in cfg["noisy_conditions"]
     if variant == "context":
         return model == "prisma-v3.0" and row["lang"] == "hinglish"
+    if variant == "matched":
+        return model.startswith("prisma") and row["lang"] == "hinglish"
     return True
 
 
