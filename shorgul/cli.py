@@ -43,6 +43,7 @@ def prepare(
     noise: bool = typer.Option(True, help="Download DEMAND noise if missing"),
     human: bool = typer.Option(False, help="Add your recordings from data/human/ (refs.csv) as hinglish_human"),
     heldout: bool = typer.Option(False, help="TTS the held-out script (lang=hinglish_heldout, billed, capped)"),
+    gramvaani: bool = typer.Option(False, help="Add real telephone calls from Gram Vaani (lang=hi_gv; download first)"),
 ) -> None:
     """Fetch FLEURS subset, (optionally) TTS Hinglish lines, noise; write manifest.csv."""
     from shorgul.data.fleurs_loader import fetch_fleurs
@@ -65,6 +66,13 @@ def prepare(
         from shorgul.data.tts_generator import generate_hinglish
         rows += generate_hinglish(clean, max_calls=max_calls, n=n, heldout=True)
         done_langs.add("hinglish_heldout")
+    if gramvaani:
+        from shorgul.data.gramvaani import load_gramvaani
+        got = load_gramvaani(clean)
+        print(f"[gramvaani] {len(got)} real telephone clips -> lang=hi_gv "
+              f"({sum('clean' in r['source'] for r in got)} clean line, {sum('dropout' in r['source'] for r in got)} with real dropouts)")
+        rows += got
+        done_langs.add("hi_gv")
     if human:
         from shorgul.data.human import load_human
         got = load_human(ROOT / "data" / "human", clean)

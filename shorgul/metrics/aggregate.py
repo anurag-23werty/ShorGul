@@ -14,7 +14,7 @@ from shorgul.stats.bootstrap import ci, paired
 RESULT_COLS = ["clip_id", "lang", "source", "condition", "variant", "model", "reference",
                "hypothesis", "wer", "cer", "entity_hit_rate", "latency_s", "status"]
 GROUP = ["lang", "model", "variant", "condition"]
-SCRIPT_RANGES = {"hi": ("ऀ", "ॿ"), "bn": ("ঀ", "৿"), "ta": ("஀", "௿")}
+SCRIPT_RANGES = {"hi": ("ऀ", "ॿ"), "hi_gv": ("ऀ", "ॿ"), "bn": ("ঀ", "৿"), "ta": ("஀", "௿")}
 CI_METRICS = ["wer", "wer_cn", "cer", "entity_hit_rate", "wer_rep", "entity_rep", "wer_cn_rep"]
 
 

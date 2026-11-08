@@ -42,9 +42,9 @@ packet_loss:
 asr:
   # language_code per manifest lang, per model family
   lang_codes:
-    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN, hinglish_human: en-IN, hinglish_heldout: en-IN}
-    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN", hinglish_human: "hi-IN,en-IN", hinglish_heldout: "hi-IN,en-IN"}
-  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi, hinglish_human: hi, hinglish_heldout: hi}
+    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN, hinglish_human: en-IN, hinglish_heldout: en-IN, hi_gv: hi-IN}
+    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN", hinglish_human: "hi-IN,en-IN", hinglish_heldout: "hi-IN,en-IN", hi_gv: hi-IN}
+  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi, hinglish_human: hi, hinglish_heldout: hi, hi_gv: hi}
   # Static domain context (NOT derived from per-clip references -> no leakage)
   context:
     topic: "Indian bank customer-care call about loan EMI, account, KYC and payment due dates"

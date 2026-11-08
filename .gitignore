@@ -27,3 +27,4 @@ data/human/*.m4a
 data/human/*.mp3
 data/human/refs.csv
 data/long/
+data/external/
