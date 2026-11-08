@@ -166,3 +166,11 @@ def test_matched_variant_identical_params_for_both_prisma():
     assert a == b == {"language_code": "hi-IN", "format": "transcribe"}
     assert not applies("whisper-small", "matched", "clean", hing)
     assert not applies("prisma-v3.0", "matched", "clean", {"lang": "hi"})
+
+
+def test_byo_key_used_in_header_and_never_logged(capsys, monkeypatch):
+    monkeypatch.delenv("GNANI_API_KEY", raising=False)
+    sess = FakeSession([FakeResp(400, text="bad")])
+    PrismaASR("prisma-v3.0", session=sess, sleep=lambda s: None, key="byo-secret-9").transcribe(b"x", {})
+    assert sess.calls[0]["headers"]["X-API-Key-ID"] == "byo-secret-9"
+    assert "byo-secret-9" not in capsys.readouterr().out

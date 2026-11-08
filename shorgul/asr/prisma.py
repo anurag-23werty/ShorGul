@@ -19,9 +19,10 @@ class PrismaASR:
     billed = True
 
     def __init__(self, name: str, session: requests.Session | None = None,
-                 sleep=time.sleep) -> None:
+                 sleep=time.sleep, key: str | None = None) -> None:
         assert name in ("prisma-v2.5", "prisma-v3.0")
         self.name = name
+        self._key = key  # optional BYO key (dashboard): held in memory only, never logged or stored
         self.session = session or requests.Session()
         self.sleep = sleep
 
@@ -50,7 +51,7 @@ class PrismaASR:
 
     def _transcribe(self, audio: bytes, filename: str, mime: str, params: dict[str, Any]) -> ASRResult:
         data = self.form_fields(params)
-        headers = {"X-API-Key-ID": api_key()}
+        headers = {"X-API-Key-ID": self._key or api_key()}
         last = "failed"
         for attempt, wait in enumerate((0, *BACKOFF_S)):
             if wait:

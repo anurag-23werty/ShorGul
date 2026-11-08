@@ -33,7 +33,7 @@ audio{width:100%;max-width:420px;height:32px}.scroll{overflow-x:auto}
 <div class="card"><img src="{{ chart }}" alt="Stability per condition">
 <div class="scroll"><table><tr><th>condition</th><th>stability [95% CI]</th><th>grade</th><th>entity retention</th></tr>
 {% for c in s.per_condition.itertuples() %}<tr><td>{{ c.condition }}</td><td>{{ '%.1f'|format(c.stability*100) }}% [{{ '%.1f'|format(c.lo*100) }}, {{ '%.1f'|format(c.hi*100) }}]</td><td>{{ c.grade }}</td>
-<td>{% if c.entity_retention == c.entity_retention %}{{ '%.0f'|format(c.entity_retention*100) }}%{% else %}–{% endif %}</td></tr>{% endfor %}
+<td>{% if c.entity_retention == c.entity_retention %}{{ '%.0f'|format(c.entity_retention*100) }}% <span class="muted">(n={{ c.entity_n }} clips with amounts/dates)</span>{% else %}– <span class="muted">(no amounts/dates found)</span>{% endif %}</td></tr>{% endfor %}
 </table></div>
 <p class="muted">Stability = CER between the model's transcript of your original audio and of the degraded copy; no reference needed.
 Validated on FLEURS: for Prisma, mean stability tracks the true WER increase (Spearman ρ = 0.59 per folder, points near y = x).

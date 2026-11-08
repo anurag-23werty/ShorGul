@@ -135,7 +135,8 @@ def _summary(res: AuditResult, orig: pd.Series) -> dict:
         point, lo, hi = ci(g, "stability") if len(g) else (np.nan,) * 3  # bootstrap CI over clips
         ret = rows.loc[rows["condition"] == cond, "entity_retention"]
         per_cond.append({"condition": cond, "stability": point, "lo": lo, "hi": hi, "grade": grade(point),
-                         "entity_retention": float(ret.mean()) if ret.notna().any() else np.nan})
+                         "entity_retention": float(ret.mean()) if ret.notna().any() else np.nan,
+                         "entity_n": int(ret.notna().sum())})
     per_cond = pd.DataFrame(per_cond)
     mean_stab = float(rows["stability"].mean())
     breaking = next((r.condition for r in per_cond.itertuples() if r.stability >= BREAK_AT), None)
