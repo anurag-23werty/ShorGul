@@ -1,0 +1,48 @@
+{
+ "framing": "Your eval config picks the winner, not the model.",
+ "entity_v25_en": {
+  "value": 0.0,
+  "lo": 0.0,
+  "hi": 0.0
+ },
+ "entity_v25_hi": {
+  "value": 0.9356,
+  "lo": 0.9111,
+  "hi": 0.9556
+ },
+ "entity_v30": {
+  "value": 0.96,
+  "lo": 0.94,
+  "hi": 0.9756
+ },
+ "matched_v30_minus_v25": {
+  "wer": {
+   "diff": 0.0559,
+   "lo": 0.0216,
+   "hi": 0.0896,
+   "p": 0.002,
+   "significant": true,
+   "verdict": "prisma-v2.5/matched better (significant)",
+   "n_clips": 25
+  },
+  "wer_cn": {
+   "diff": -0.0168,
+   "lo": -0.0508,
+   "hi": 0.017,
+   "p": 0.396,
+   "significant": false,
+   "verdict": "tie (not significant)",
+   "n_clips": 25
+  },
+  "entity_hit_rate": {
+   "diff": 0.0244,
+   "lo": 0.0,
+   "hi": 0.0689,
+   "p": 0.274,
+   "significant": false,
+   "verdict": "tie (not significant)",
+   "n_clips": 25
+  }
+ },
+ "note": "Matched = both models with language_code=hi-IN, format=transcribe. wer_cn = currency-neutral WER (₹4,500 and 4,500 रुपये score the same)."
+}

@@ -1,44 +1,27 @@
-import { useEffect, useState } from "react";
-import { CallScene } from "./components/CallScene";
-import { Close } from "./components/Close";
-import { Curves } from "./components/Curves";
-import { Finding } from "./components/Finding";
-import { Fix } from "./components/Fix";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Hero } from "./components/Hero";
-import { Pipeline } from "./components/Pipeline";
-import { ConditionsCarousel, FindingsCarousel, UsersCarousel } from "./components/Carousels";
 import type { Data } from "./lib/data";
 import { loadData } from "./lib/data";
-import { ScrollTrigger, startSmoothScroll } from "./lib/motion";
+
+const restChunk = typeof window === "undefined" ? new Promise<never>(() => {}) : import("./Rest");   // start fetching now, in parallel with data.json; render it after the hero
+const Rest = lazy(() => restChunk);
 
 export default function App() {
   const [data, setData] = useState<Data | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => { loadData().then(setData).catch((e) => setErr(String(e))); }, []);
-  useEffect(() => {
-    if (!data) return;
-    const stop = startSmoothScroll();
-    requestAnimationFrame(() => ScrollTrigger.refresh());
-    return stop;
-  }, [data]);
 
-  if (err) return <main className="wrap" style={{ padding: "120px 0" }}>Could not load data.json: {err}</main>;
-  if (!data) return <main aria-busy="true" style={{ minHeight: "100vh" }} />;
   return (
     <>
       <Hero data={data} />
-      <main>
-        <CallScene data={data} />
-        <ConditionsCarousel data={data} />
-        <Finding data={data} />
-        <Fix data={data} />
-        <Curves data={data} />
-        <FindingsCarousel data={data} />
-        <UsersCarousel data={data} />
-        <Pipeline data={data} />
-      </main>
-      <Close data={data} />
+      {err && <main className="wrap" style={{ padding: "120px 0" }}>Could not load data.json: {err}</main>}
+      {data && (
+        <Suspense fallback={<div style={{ minHeight: "100vh" }} aria-busy="true" />}>
+          <Rest data={data} />
+        </Suspense>
+      )}
+      {!data && !err && <div style={{ minHeight: "100vh" }} aria-busy="true" />}
     </>
   );
 }

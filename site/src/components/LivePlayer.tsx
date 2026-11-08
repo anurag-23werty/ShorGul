@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Data } from "../lib/data";
 import { asset } from "../lib/data";
-import { reducedMotion } from "../lib/motion";
+import { reducedMotion } from "../lib/rm";
 import s from "./LivePlayer.module.css";
 
 type Tr = { system: string; label: string; words: string[]; t: number[]; marks: (string | null)[] };

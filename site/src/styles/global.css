@@ -2,15 +2,15 @@
   --bg: #0b0b0c;
   --ink: #ededed;
   --ink-2: #a1a1a6;
-  --ink-3: #6e6e73;
+  --ink-3: #8a8a90;
   --line: #232326;
   --line-2: #2f2f33;
   --panel: #121214;
   --accent: #ff6a1a;      /* signal recovered: correct entities and the fix, nothing else */
   --error: #e5484d;       /* errors only */
-  --font-head: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Noto Sans Devanagari", ui-monospace, monospace;
-  --font-deva: "Noto Sans Devanagari", "Geist", sans-serif;
+  --font-head: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "Noto Sans Devanagari", ui-monospace, monospace;
+  --font-deva: "Noto Sans Devanagari", "Geist Variable", sans-serif;
   --max: 1100px;
   --gutter: 24px;
   color-scheme: dark;

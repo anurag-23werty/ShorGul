@@ -89,7 +89,7 @@ export function Curves({ data }: { data: Data }) {
           </div>
         </div>
         <div className={s.chartWrap} onPointerLeave={() => setTip(null)}>
-          <svg ref={svg} className={s.svg} viewBox={`0 0 ${W} ${H}`} role="img"
+          <svg ref={svg} className={s.svg} viewBox={`0 0 ${W} ${H}`} role="group"
                aria-label={`WER by noise level, ${lang}, ${noise}`}>
             <g className={s.grid}>{ticks.map((t) => <line key={t} x1={PAD.l} x2={W - PAD.r} y1={Y(t)} y2={Y(t)} />)}</g>
             <g className={s.axis}>
@@ -108,7 +108,7 @@ export function Curves({ data }: { data: Data }) {
                   <path data-line className={s.path} d={line} stroke={r.color} />
                   {r.pts.map((p, i) => <circle key={i} className={s.dot} cx={X(i)} cy={Y(p.wer)} r={4.5} fill={r.color} />)}
                   {r.pts.map((p, i) => (
-                    <circle key={`h${i}`} className={s.hit} cx={X(i)} cy={Y(p.wer)} r={8} tabIndex={0}
+                    <circle key={`h${i}`} className={s.hit} cx={X(i)} cy={Y(p.wer)} r={8} tabIndex={0} role="img"
                             style={{ pointerEvents: "none" }}
                             aria-label={`${r.label}, ${xs[i][1]}: WER ${(p.wer * 100).toFixed(1)}%`}
                             onFocus={(e) => show(e, r.label, p, i, xs[i][1])} onBlur={() => setTip(null)} />

@@ -39,7 +39,7 @@ export function CountUp({ text, after, className, ms = 1100 }: { text: string; a
   const shown = m ? text.replace(m[0], m[1] + v.toLocaleString("en-IN", { minimumFractionDigits: dec, maximumFractionDigits: dec })) : text;
   return (
     <>
-      <span ref={ref} className={className} aria-label={text}><span aria-hidden>{shown}</span></span>
+      <span ref={ref} className={className}><span aria-hidden>{shown}</span><span className="sr-only">{text}</span></span>
       {after !== undefined && <span style={{ opacity: done ? 1 : 0, transition: "opacity 400ms ease-out" }}>{after}</span>}
     </>
   );
@@ -57,7 +57,8 @@ export function TypeCmd({ cmd, prompt = "$ ", className }: { cmd: string; prompt
     return () => clearTimeout(timer);
   }, [seen, cmd]);
   return (
-    <div ref={ref} className={className} aria-label={prompt + cmd}>
+    <div ref={ref} className={className}>
+      <span className="sr-only">{prompt + cmd}</span>
       <span aria-hidden><span style={{ color: "var(--ink-3)" }}>{prompt}</span>{cmd.slice(0, n)}
         {n < cmd.length && <span style={{ display: "inline-block", width: "0.55em", height: "1em", verticalAlign: "-0.15em", background: "var(--ink-2)" }} />}
       </span>

@@ -10,7 +10,7 @@
 .stage[data-on="true"] { color: var(--ink); }
 .stage[data-on="true"]::before { transform: scaleY(1); }
 .stageName { font-size: 15px; font-weight: 500; }
-.stageNote { font-family: var(--font-mono); font-size: 12px; color: inherit; opacity: 0.8; }
+.stageNote { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
 .listen { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
 .chipBtn { height: 34px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line-2); background: transparent; cursor: pointer; font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); transition: border-color 200ms ease-out, color 200ms ease-out; }
 .chipBtn:hover, .chipBtn[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3); }

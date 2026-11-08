@@ -32,3 +32,5 @@
   .brand { margin-bottom: 64px; }
   .navlinks { gap: 14px; }
 }
+.live { min-height: 516px; }
+@media (max-width: 640px) { .live { min-height: 558px; } }

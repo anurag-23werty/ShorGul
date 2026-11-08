@@ -477,7 +477,11 @@ def main() -> None:
         "findings": findings_rows(s, c, RES),
     }
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    (OUT / "data.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # the hero's numbers, bundled into the first JS chunk so the headline paints without waiting for data.json
+    gen = ROOT / "site" / "src" / "generated"
+    gen.mkdir(exist_ok=True)
+    (gen / "headline.json").write_text(json.dumps(data["headline"], ensure_ascii=False, indent=1), encoding="utf-8")
     kb = (OUT / "data.json").stat().st_size / 1024
     print(f"[export] site/public/data.json ({kb:.0f} KB), {len(data['examples'])} clips, "
           f"{len(list((OUT / 'audio').glob('*.mp3')))} mp3")

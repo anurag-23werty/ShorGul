@@ -87,7 +87,7 @@ export function Fix({ data }: { data: Data }) {
               return (
                 <div key={x.id} className={s.barRow}>
                   <span className={s.barLabel}>{x.label}</span>
-                  <div className={s.track} aria-label={`${x.label}: ${pct(x.entity_raw.value, 1)} before, ${pct(x.entity_repaired.value, 1)} after repair`}>
+                  <div className={s.track} role="img" aria-label={`${x.label}: ${pct(x.entity_raw.value, 1)} before, ${pct(x.entity_repaired.value, 1)} after repair`}>
                     <span data-grow className={s.before} style={{ width: L(x.entity_raw.value) }} />
                     <span data-grow className={s.after} style={{ width: L(x.entity_repaired.value) }} />
                     <span data-ci className={s.whisker} style={{ left: L(x.entity_repaired.lo), width: `calc(${L(x.entity_repaired.hi)} - ${L(x.entity_repaired.lo)})` }} />

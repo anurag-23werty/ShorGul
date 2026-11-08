@@ -2,11 +2,12 @@ import { useRef } from "react";
 import type { Data } from "../lib/data";
 import { ciText, pct } from "../lib/data";
 import s from "./Hero.module.css";
+import headline from "../generated/headline.json";
 import { LivePlayer } from "./LivePlayer";
 
 const REPO = "https://github.com/anurag-23werty/ShorGul";
-export function Hero({ data }: { data: Data }) {
-  const h = data.headline;
+export function Hero({ data }: { data: Data | null }) {
+  const h = headline as Data["headline"];
   const playRef = useRef<(() => void) | null>(null);
   const hear = () => { playRef.current?.(); document.getElementById("live")?.scrollIntoView({ behavior: "smooth", block: "center" }); };
 
@@ -35,7 +36,7 @@ export function Hero({ data }: { data: Data }) {
           </button>
           <a className={s.btn} href={REPO}>GitHub</a>
         </div>
-        <div id="live"><LivePlayer data={data} onReady={(p) => { playRef.current = p; }} /></div>
+        <div id="live" className={s.live}>{data && <LivePlayer data={data} onReady={(p) => { playRef.current = p; }} />}</div>
       </div>
     </header>
   );
