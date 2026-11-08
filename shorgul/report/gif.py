@@ -105,7 +105,7 @@ def build(out: Path) -> Path:
         _frame("The fix: ShorGul entity repair", "applied to the en-IN transcript, no new API call", repair(en), good,
                ("amount found · date found", GOOD),
                f"Entity accuracy {rp['diff'] * 100:+.0f} pts [{rp['lo'] * 100:+.0f}, {rp['hi'] * 100:+.0f}] "
-               "on en-IN output · 0 regressions on all 3,825 transcripts."),
+               "on en-IN output · 0 regressions on all 4,175 transcripts."),
         _frame("WER misleads Indian voice-AI teams.", "ShorGul tests the config, the call and the entities.", None, {},
                None, "bench · audit your own audio · regression gate in CI"),
     ]

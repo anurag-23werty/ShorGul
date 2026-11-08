@@ -46,16 +46,17 @@ the call conditions and the entities part of the test. The full verification is 
 `shorgul.entities.repair` is a model-agnostic post-processor that rewrites spoken-form amounts and dates
 (*chaar hazaar paanch sau rupay → ₹4,500*, *चालीस हज़ार रुपये → ₹40,000*, *1 8 अगस्त → 18 अगस्त*,
 *3/1/May → 31 May*). It only converts **in an entity context**, so *do teen log* and *kar do* are left alone. It
-has 59 unit tests, and on all 3,825 benchmark transcripts it produced **0 regressions**.
+has 64 unit tests, and on all 4,175 benchmark transcripts it produced **0 regressions**. The rules were developed on
+these same transcripts, so the gains below are **in-sample**; expect less on new calls.
 
 <!-- table:repair -->
 | model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | Δ WER currency-neutral |
 |---|---|---|---|---|
-| Prisma v2.5 (`en-IN`) | 0% → 96% | +96.0 [+90.0, +100.0] * | -34.4 [-39.7, -29.6] * | -27.3 [-32.1, -22.8] * |
+| Prisma v2.5 (`en-IN`) | 0% → 100% | +100.0 [+100.0, +100.0] * | -36.5 [-41.4, -31.8] * | -29.4 [-34.0, -25.0] * |
 | Prisma v2.5 (`hi-IN`) | 94% → 100% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
 | Prisma v3.0 | 96% → 97% | +1.2 [+0.0, +3.8] | -7.6 [-8.8, -6.6] * | -0.4 [-1.2, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
-| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.9 [-6.3, -1.7] * | -3.9 [-6.3, -1.7] * |
+| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.3 [-5.5, -1.4] * | -3.3 [-5.5, -1.4] * |
 <!-- /table:repair -->
 
 `*` = significant (paired bootstrap). **Honest positioning:** on Prisma output with `format=transcribe`, Gnani's own

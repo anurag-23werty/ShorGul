@@ -175,8 +175,8 @@ def _fixes(res: AuditResult, orig_changed: int, n_orig: int) -> list[dict]:
     share = orig_changed / max(n_orig, 1)
     fixes.append({"fix": "Entity repair (shorgul.entities.repair)", "recommend": share > 0,
                   "evidence": f"changes {orig_changed}/{n_orig} of your transcripts (spoken numbers or split dates "
-                              f"→ written form). Benchmark: 0 regressions on 3,825 transcripts; "
-                              f"Prisma v2.5 en-IN entity accuracy 0% → 96%."})
+                              f"→ written form). Benchmark: 0 regressions on 4,175 transcripts; "
+                              f"Prisma v2.5 en-IN entity accuracy 0% → 100% (in-sample, 25 clips)."})
     comp = path("results") / "comparisons.csv"
     den = ctx = None
     if comp.exists():
