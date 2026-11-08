@@ -191,16 +191,18 @@ def audit(
     n = len(collect(folder))
     need = plan_calls(n, len(conds))
     out = out or path("results") / "audits" / folder.name
-    print(f"[audit] {n} clips x (1 original + {len(conds)} conditions) = {need} transcriptions "
-          f"({'MOCK, 0 billed' if mock or model == 'whisper-small' else f'up to {need} billed, cap {max_calls}'})")
+    print(f"[audit] {n} clips x {1 + len(conds)} versions = {need} transcriptions "
+          f"({'mock, 0 billed' if mock or model == 'whisper-small' else f'cap {max_calls} billed'})")
     res = run_audit(folder, lang, model, max_calls, mock, out, conds, refs)
     report = render(res, out)
     res.rows.to_csv(out / "audit_rows.csv", index=False)
     res.clips.to_csv(out / "audit_clips.csv", index=False)
     s = res.summary
-    print(f"[audit] grade {s['grade']} | mean stability {s['mean_stability']:.1%} | breaking point "
-          f"{s['breaking_point'] or 'none'} | nearest: {s['nearest']}")
-    print(s["per_condition"].round(3).to_string(index=False))
+    looks = ", ".join(f"{k} x{v}" for k, v in s["nearest"].items())
+    print(f"[audit] grade {s['grade']} | mean stability {s['mean_stability']:.1%} | breaks at {s['breaking_point'] or 'none'}")
+    print(f"[audit] audio looks like: {looks}")
+    pc = s["per_condition"].rename(columns={"entity_retention": "entities_kept", "entity_n": "n"})
+    print(pc[["condition", "stability", "lo", "hi", "grade", "entities_kept", "n"]].round(3).to_string(index=False))
     print(f"[audit] report -> {report}")
 
 
@@ -215,6 +217,7 @@ def compare(
     langs: str = typer.Option(None, help="Only these langs"),
     mock: bool = typer.Option(False, help="Synthesize both sides with the mock ASR (CI smoke test, no audio/API)"),
     mock_regress: bool = typer.Option(False, help="With --mock: make the candidate worse, to prove the gate fails"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Also print every per-condition change"),
 ) -> None:
     """Regression gate: paired bootstrap, exit 1 on a significant regression >= --fail-on points."""
     from shorgul.compare import gate, load_side, mock_side
@@ -230,12 +233,15 @@ def compare(
     if langs:
         base, cand = base[base["lang"].isin(_split(langs))], cand[cand["lang"].isin(_split(langs))]
     g = gate(base, cand, metric, fail_on)
+    cols = ["lang", "condition", "delta_pts", "ci_lo", "ci_hi", "verdict"]
     with pd.option_context("display.width", 200, "display.max_rows", 200):
-        print(g.table[g.table["condition"] == "ALL"].to_string(index=False))
-        worst = g.table[g.table["verdict"] != "no significant change"]
-        if len(worst):
+        print(g.table[g.table["condition"] == "ALL"][cols].to_string(index=False))
+        worst = g.table[(g.table["verdict"] != "no significant change") & (g.table["condition"] != "ALL")]
+        if verbose and len(worst):
             print("\nper-condition changes:")
-            print(worst[worst["condition"] != "ALL"].to_string(index=False))
+            print(worst[cols].to_string(index=False))
+        elif len(worst):
+            print(f"({len(worst)} per-condition changes; --verbose to list)")
     print(g.message)
     raise typer.Exit(1 if g.regressed else 0)
 

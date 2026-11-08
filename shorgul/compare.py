@@ -81,7 +81,7 @@ def gate(baseline: pd.DataFrame, candidate: pd.DataFrame, metric: str, fail_on: 
             sig_better = (r.hi < 0) if better == "lower" else (r.lo > 0)
             verdict = ("REGRESSION" if sig_worse and worse_by >= fail_on else
                        "worse (below threshold)" if sig_worse else "improved" if sig_better else "no significant change")
-            rows.append({"lang": lang, "condition": cond, "metric": col, "candidate_minus_baseline_pts": round(r.point * 100, 2),
+            rows.append({"lang": lang, "condition": cond, "metric": col, "delta_pts": round(r.point * 100, 2),
                          "ci_lo": round(r.lo * 100, 2), "ci_hi": round(r.hi * 100, 2), "n_clips": r.n_clips,
                          "verdict": verdict})
     t = pd.DataFrame(rows)

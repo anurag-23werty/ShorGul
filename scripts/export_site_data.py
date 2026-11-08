@@ -311,7 +311,7 @@ def terminals() -> dict:
                             "--langs", "hi,bn,ta", "--metric", "wer", "--fail-on", "2"], ROOT,
                            "shorgul compare --baseline v25.parquet --candidate v30.parquet --metric wer --fail-on 2")
         for t in (voicebot, solutions):  # captured from cache; the shown --max-calls is what a fresh run needs
-            t["output"] = [ln.replace("cap 0", "cap " + t["command"].split()[-1]) for ln in t["output"]
+            t["output"] = [ln.replace("cap 0 billed", "cap " + t["command"].split()[-1] + " billed") for ln in t["output"]
                            if not ln.startswith("[run] new billed") and not ln.startswith("[plan]")
                            and "report ->" not in ln]
         return {"voicebot_golive": voicebot, "solutions_deal": solutions, "release_gate_entity": gate,

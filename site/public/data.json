@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-08T07:20:19+00:00",
+ "generated_at": "2026-11-08T07:42:17+00:00",
  "source": "results/summary.csv, results/comparisons.csv, results/scored_full.parquet, results/finding_check.md",
  "ci": "95% percentile bootstrap over clips, 1,000 resamples; comparisons are paired",
  "headline": {
@@ -13781,34 +13781,36 @@
   "voicebot_golive": {
    "command": "shorgul audit ./calls --lang hinglish --model prisma-v3.0 --max-calls 60",
    "output": [
-    "[audit] 12 clips x (1 original + 4 conditions) = 60 transcriptions (up to 60 billed, cap 60)",
-    "[audit] grade A | mean stability 1.3% | breaking point none | nearest: {'clean': 12}",
-    "condition  stability    lo    hi grade  entity_retention  entity_n",
-    "    phone      0.000 0.000 0.000     A               1.0        12",
-    "   loss_5      0.000 0.000 0.000     A               1.0        12",
-    "traffic_5      0.011 0.000 0.034     A               1.0        12",
-    " market_0      0.042 0.012 0.074     B               1.0        12"
+    "[audit] 12 clips x 5 versions = 60 transcriptions (cap 60 billed)",
+    "[audit] grade A | mean stability 1.3% | breaks at none",
+    "[audit] audio looks like: clean x12",
+    "condition  stability    lo    hi grade  entities_kept  n",
+    "    phone      0.000 0.000 0.000     A            1.0 12",
+    "   loss_5      0.000 0.000 0.000     A            1.0 12",
+    "traffic_5      0.011 0.000 0.034     A            1.0 12",
+    " market_0      0.042 0.012 0.074     B            1.0 12"
    ],
    "exit_code": 0
   },
   "solutions_deal": {
    "command": "shorgul audit ./customer_calls --lang hi --model prisma-v3.0 --max-calls 125",
    "output": [
-    "[audit] 25 clips x (1 original + 4 conditions) = 125 transcriptions (up to 125 billed, cap 125)",
-    "[audit] grade B | mean stability 3.9% | breaking point market_0 | nearest: {'clean': 20, 'phone': 4, 'loss_5': 1}",
-    "condition  stability    lo    hi grade  entity_retention  entity_n",
-    "    phone      0.008 0.001 0.021     A               1.0         1",
-    "   loss_5      0.016 0.006 0.029     A               1.0         1",
-    "traffic_5      0.015 0.004 0.029     A               1.0         1",
-    " market_0      0.118 0.064 0.178     D               0.0         1"
+    "[audit] 25 clips x 5 versions = 125 transcriptions (cap 125 billed)",
+    "[audit] grade B | mean stability 3.9% | breaks at market_0",
+    "[audit] audio looks like: clean x20, phone x4, loss_5 x1",
+    "condition  stability    lo    hi grade  entities_kept  n",
+    "    phone      0.008 0.001 0.021     A            1.0  1",
+    "   loss_5      0.016 0.006 0.029     A            1.0  1",
+    "traffic_5      0.015 0.004 0.029     A            1.0  1",
+    " market_0      0.118 0.064 0.178     D            0.0  1"
    ],
    "exit_code": 0
   },
   "release_gate_entity": {
    "command": "shorgul compare --baseline v25.parquet --candidate v30.parquet --metric entity --fail-on 2",
    "output": [
-    "    lang condition          metric  candidate_minus_baseline_pts  ci_lo  ci_hi  n_clips               verdict",
-    "hinglish       ALL entity_hit_rate                           2.5    0.0    7.0       25 no significant change",
+    "    lang condition  delta_pts  ci_lo  ci_hi               verdict",
+    "hinglish       ALL        2.5    0.0    7.0 no significant change",
     "PASS: no significant entity regression of >= 2.0 pts"
    ],
    "exit_code": 0
@@ -13816,26 +13818,11 @@
   "release_gate_wer": {
    "command": "shorgul compare --baseline v25.parquet --candidate v30.parquet --metric wer --fail-on 2",
    "output": [
-    "lang condition metric  candidate_minus_baseline_pts  ci_lo  ci_hi  n_clips    verdict",
-    "  bn       ALL wer_cn                          3.65   1.36   6.42       25 REGRESSION",
-    "  hi       ALL wer_cn                          3.18   2.13   4.37       25 REGRESSION",
-    "  ta       ALL wer_cn                          4.15   0.59   8.48       25 REGRESSION",
-    "per-condition changes:",
-    "lang  condition metric  candidate_minus_baseline_pts  ci_lo  ci_hi  n_clips                 verdict",
-    "  bn     loss_5 wer_cn                          3.12   0.38   6.76       25              REGRESSION",
-    "  bn  traffic_5 wer_cn                          4.68   1.15   8.40       25              REGRESSION",
-    "  bn  market_10 wer_cn                          3.70   0.39   7.30       25              REGRESSION",
-    "  bn   market_0 wer_cn                          8.77   5.15  12.90       25              REGRESSION",
-    "  bn  opus_voip wer_cn                          5.07   1.70   8.92       25              REGRESSION",
-    "  hi      clean wer_cn                          1.88   0.57   3.41       25 worse (below threshold)",
-    "  hi      phone wer_cn                          2.75   1.50   4.09       25              REGRESSION",
-    "  hi     loss_5 wer_cn                          3.33   1.76   4.89       25              REGRESSION",
-    "  hi traffic_10 wer_cn                          3.18   1.87   4.62       25              REGRESSION",
-    "  hi  market_10 wer_cn                          2.32   0.82   3.80       25              REGRESSION",
-    "  hi   market_0 wer_cn                          8.10   4.51  11.76       25              REGRESSION",
-    "  hi  opus_voip wer_cn                          3.04   1.32   4.91       25              REGRESSION",
-    "  ta      clean wer_cn                          4.58   0.66   9.66       25              REGRESSION",
-    "  ta   market_0 wer_cn                          8.70   3.14  14.60       25              REGRESSION",
+    "lang condition  delta_pts  ci_lo  ci_hi    verdict",
+    "  bn       ALL       3.65   1.36   6.42 REGRESSION",
+    "  hi       ALL       3.18   2.13   4.37 REGRESSION",
+    "  ta       ALL       4.15   0.59   8.48 REGRESSION",
+    "(14 per-condition changes; --verbose to list)",
     "FAIL: 16 significant regression(s) of >= 2.0 pts wer"
    ],
    "exit_code": 1
