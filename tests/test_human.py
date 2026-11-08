@@ -48,7 +48,7 @@ def test_load_human(tmp_path, monkeypatch):
     pd.DataFrame([{"file": "a.wav", "reference": "₹4,500", "entities": "₹4,500", "channel": "call", "line_id": "hh_003"}]).to_csv(hd / "refs.csv", index=False)
     r2 = human.load_human(hd, tmp_path / "clean")
     assert r2[0]["clip_id"] == "hu_call_hh_003" and r2[0]["source"] == "human_call"
-    write_wav(hd / "long.wav", np.zeros(16000 * 31, dtype=np.float32))
+    write_wav(hd / "long.wav", np.zeros(16000 * 601, dtype=np.float32))
     pd.DataFrame([{"file": "long.wav", "reference": "x"}]).to_csv(hd / "refs.csv", index=False)
-    with pytest.raises(ValueError, match="30"):
+    with pytest.raises(ValueError, match="600"):
         human.load_human(hd, tmp_path / "clean")

@@ -104,8 +104,9 @@ def test_quick_audit_mock_and_billing(tmp_path):
     first = quick_audit(audio, "hinglish", "prisma-v3.0", mock=False, backend=Billed(), cache=c, noises=noises)
     again = quick_audit(audio, "hinglish", "prisma-v3.0", mock=False, backend=Billed(), cache=c, noises=noises)
     assert first.billed_calls == 5 and again.billed_calls == 0 and Billed.n == 5  # cache: never billed twice
-    with pytest.raises(ValueError, match="30"):
-        load_clip(_wav(np.zeros(16000 * 31, dtype=np.float32)))
+    assert len(load_clip(_wav(np.zeros(16000 * 45, dtype=np.float32)))) == 16000 * 45   # long calls allowed now
+    with pytest.raises(ValueError, match="600"):
+        load_clip(_wav(np.zeros(16000 * 601, dtype=np.float32)))
 
 
 def _wav(x):

@@ -8,7 +8,8 @@ import numpy as np
 import soundfile as sf
 
 from shorgul.asr.base import MockASR
-from shorgul.asr.cache import Cache, asr_key
+from shorgul.asr.cache import Cache
+from shorgul.asr.chunk import transcribe_any
 from shorgul.asr.runner import params_for
 from shorgul.audio import SR, read_bytes
 from shorgul.audit.run import MOCK_TEXT
@@ -18,7 +19,7 @@ from shorgul.entities.repair import repair
 from shorgul.health.check import Health, check
 
 CONDITIONS = ["phone", "loss_5", "traffic_5", "market_0"]
-MAX_S = 30.0
+MAX_S = 600.0  # long calls are chunked at pauses (shorgul.asr.chunk)
 
 
 @dataclass
@@ -39,7 +40,7 @@ def _wav_bytes(x: np.ndarray) -> bytes:
 def load_clip(data: bytes) -> np.ndarray:
     audio = read_bytes(data)
     if len(audio) / SR > MAX_S:
-        raise ValueError(f"clip is {len(audio) / SR:.1f} s; Gnani STT accepts at most {MAX_S:.0f} s")
+        raise ValueError(f"clip is {len(audio) / SR:.1f} s; the limit here is {MAX_S:.0f} s")
     return audio
 
 
@@ -62,19 +63,13 @@ def quick_audit(audio: np.ndarray, lang: str, model: str, mock: bool, key: str |
     params = params_for(model, {"lang": lang, "has_entities": lang.startswith("hinglish")}, "raw")
     rows, billed = [], 0
     for cond in ["original", *conds]:
-        b = _wav_bytes(audio if cond == "original" else degrade_audio(audio, "upload", cond, noises)[0])
-        k = asr_key(b, model, params)
-        hit = cache.get(k)
-        if hit is None:
-            r = backend.transcribe(b, {**params, "_reference": MOCK_TEXT, "_variant": "raw",
-                                       "_condition": "clean" if cond == "original" else cond})
-            billed += int(getattr(backend, "billed", False))
-            if r.cacheable:
-                cache.put(k, model, params, {"transcript": r.transcript}, r.status, r.latency_s)
-            text, status = r.transcript, r.status
-        else:
-            text, status = hit["response"]["transcript"], hit["status"]
-        rows.append({"condition": cond, "transcript": text, "repaired": repair(text), "status": status, "audio": b})
+        x = audio if cond == "original" else degrade_audio(audio, "upload", cond, noises)[0]
+        text, status, n = transcribe_any(x, backend, model, params, cache,
+                                         {"_reference": MOCK_TEXT, "_variant": "raw",
+                                          "_condition": "clean" if cond == "original" else cond})
+        billed += n
+        rows.append({"condition": cond, "transcript": text, "repaired": repair(text), "status": status,
+                     "audio": _wav_bytes(x)})
     orig = rows[0]["transcript"]
     for r in rows[1:]:
         r["stability"] = stability(orig, r["transcript"], lang)

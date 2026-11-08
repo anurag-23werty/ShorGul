@@ -91,6 +91,45 @@ def results_dir(mock: bool) -> Path:
     return path("results") / ("mock" if mock else "")
 
 
+def _long_chunks(audio: bytes) -> list[bytes]:
+    """Chunk WAV bytes longer than the STT limit; [] for normal clips."""
+    import io
+
+    import soundfile as sf
+
+    from shorgul.asr.chunk import LIMIT_S, chunks, wav_bytes
+    from shorgul.audio import read_bytes
+    try:
+        if sf.info(io.BytesIO(audio)).duration <= LIMIT_S:   # header only: no full decode for normal clips
+            return []
+    except Exception:  # noqa: BLE001 - not decodable here: let the backend handle (or reject) it as before
+        return []
+    return [wav_bytes(c) for c in chunks(read_bytes(audio))]
+
+
+def _transcribe_long(parts: list[bytes], backend, job: Job, extra: dict, cache: Cache, budget: int):
+    """Returns (result, billed_calls_used, completed). Stops, saving nothing stitched, if the budget runs out."""
+    from shorgul.asr.base import ASRResult
+    from shorgul.asr.chunk import stitch
+    texts, used, lat, statuses = [], 0, 0.0, []
+    for b in parts:
+        k = asr_key(b, job.model, job.params)
+        hit = cache.get(k)
+        if hit is None:
+            if backend.billed and used >= budget:
+                return ASRResult("", "skipped", 0.0), used, False
+            r = backend.transcribe(b, {**job.params, **extra})
+            used += int(backend.billed)
+            if r.cacheable:
+                cache.put(k, job.model, job.params, {"transcript": r.transcript, "raw": r.raw}, r.status, r.latency_s)
+            hit = {"response": {"transcript": r.transcript}, "status": r.status, "latency_s": r.latency_s}
+        texts.append(hit["response"].get("transcript", ""))
+        statuses.append(hit["status"])
+        lat += hit["latency_s"] or 0.0
+    status = next((st for st in statuses if not st.startswith("ok")), "ok")
+    return ASRResult(stitch(texts), status, round(lat, 3), {"chunks": len(parts)}), used, True
+
+
 def _log_error(job: Job, res, mock: bool) -> None:
     """Persist failed-call details (server message only; the API key is never part of res.raw)."""
     out = results_dir(mock) / "errors.jsonl"
@@ -120,14 +159,22 @@ def run_jobs(jobs: list[Job], mock: bool, max_calls: int, dry_run: bool = False,
             continue
         if hit is None:
             backend = backends.get(job.model) or backends.setdefault(job.model, make_backend(job.model, mock))
-            if backend.billed and calls >= max_calls:
-                skipped += 1
-                continue
             # mock backends need text to corrupt: audits without references pass a placeholder (mock_text)
             extra = {"_reference": job.row.get("mock_text") or job.row["reference"], "_condition": job.condition,
                      "_variant": job.variant}
-            res = backend.transcribe(audio, {**job.params, **extra})
-            calls += backend.billed
+            long_parts = _long_chunks(audio)
+            if long_parts:  # > 30 s: transcribe chunk by chunk (each cached + billed on its own), then stitch
+                res, used, done = _transcribe_long(long_parts, backend, job, extra, cache, max_calls - calls)
+                calls += used
+                if not done:
+                    skipped += 1
+                    continue
+            else:
+                if backend.billed and calls >= max_calls:
+                    skipped += 1
+                    continue
+                res = backend.transcribe(audio, {**job.params, **extra})
+                calls += backend.billed
             if res.cacheable:
                 cache.put(key, job.model, job.params, {"transcript": res.transcript, "raw": res.raw},
                           res.status, res.latency_s)

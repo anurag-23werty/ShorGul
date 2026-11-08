@@ -15,7 +15,7 @@ import pandas as pd
 from shorgul.audio import SR, read_wav, write_wav
 from shorgul.config import ROOT
 
-MAX_S = 30.0
+MAX_S = 600.0  # longer than the 30 s STT limit is fine: the runner chunks at pauses
 
 
 def load_human(human_dir: Path, out_dir: Path) -> list[dict]:
@@ -33,7 +33,7 @@ def load_human(human_dir: Path, out_dir: Path) -> list[dict]:
             raise FileNotFoundError(f"{src} listed in refs.csv but not found")
         audio = read_wav(src)
         if len(audio) / SR > MAX_S:
-            raise ValueError(f"{r.file} is {len(audio) / SR:.1f} s; Gnani STT accepts at most {MAX_S:.0f} s")
+            raise ValueError(f"{r.file} is {len(audio) / SR:.1f} s; keep recordings under {MAX_S:.0f} s")
         ents = getattr(r, "entities", "") or ""
         channel = (getattr(r, "channel", "") or "").strip()
         if channel and channel not in ("direct", "call"):
