@@ -49,12 +49,14 @@ def synthesize(payload: dict) -> bytes:
     return r.content
 
 
-def generate_hinglish(out_dir: Path, max_calls: int, n: int | None = None) -> list[dict]:
-    """Return manifest rows for lines whose audio exists (cached or newly synthesized)."""
+def generate_hinglish(out_dir: Path, max_calls: int, n: int | None = None, heldout: bool = False) -> list[dict]:
+    """Return manifest rows for lines whose audio exists (cached or newly synthesized).
+    heldout=True uses the held-out script and voices, tagged lang="hinglish_heldout"."""
     cfg = load_config()["data"]
-    voices = cfg["tts_voices"]
+    voices = cfg["heldout_voices" if heldout else "tts_voices"]
+    lang = "hinglish_heldout" if heldout else "hinglish"
     cache = Cache.default()
-    lines = read_script(ROOT / cfg["hinglish_script"])[: n or None]
+    lines = read_script(ROOT / cfg["heldout_script" if heldout else "hinglish_script"])[: n or None]
     rows, calls = [], 0
     for i, line in enumerate(lines):
         wav = out_dir / f"{line['clip_id']}.wav"
@@ -72,7 +74,7 @@ def generate_hinglish(out_dir: Path, max_calls: int, n: int | None = None) -> li
             write_wav(wav, read_bytes(blob))
         dur = len(read_wav(wav)) / SR
         rows.append({
-            "clip_id": line["clip_id"], "lang": "hinglish", "source": "tts",
+            "clip_id": line["clip_id"], "lang": lang, "source": "tts",
             "audio_path": str(wav.relative_to(ROOT)), "duration_s": round(dur, 3), "reference": line["text"],
             "has_entities": True, "entities": line["entities"],
         })

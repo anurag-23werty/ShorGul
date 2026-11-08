@@ -7,6 +7,8 @@ data:
   max_duration_s: 25.0
   hinglish_script: shorgul/data/scripts_hinglish.txt
   tts_voices: [Nalini, Deepak, Bhavna, Roopesh]   # rotated per line (timbre-v2.5, hi-IN)
+  heldout_script: shorgul/data/scripts_hinglish_heldout.txt
+  heldout_voices: [Yashvi, Vikrant, Urmila, Hemraj]   # speakers never used in the dev set
 
 paths:
   clean: data/clean
@@ -39,9 +41,9 @@ packet_loss:
 asr:
   # language_code per manifest lang, per model family
   lang_codes:
-    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN, hinglish_human: en-IN}
-    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN", hinglish_human: "hi-IN,en-IN"}
-  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi, hinglish_human: hi}
+    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN, hinglish_human: en-IN, hinglish_heldout: en-IN}
+    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN", hinglish_human: "hi-IN,en-IN", hinglish_heldout: "hi-IN,en-IN"}
+  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi, hinglish_human: hi, hinglish_heldout: hi}
   # Static domain context (NOT derived from per-clip references -> no leakage)
   context:
     topic: "Indian bank customer-care call about loan EMI, account, KYC and payment due dates"

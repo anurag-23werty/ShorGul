@@ -117,7 +117,7 @@ def degradation(s: pd.DataFrame, c: pd.DataFrame) -> dict:
     series = []
     raw = s[s["variant"] == "raw"]
     for (lang, model), g in raw.groupby(["lang", "model"]):
-        if lang == "hinglish_human":
+        if lang in ("hinglish_human", "hinglish_heldout"):
             continue
         g = g.set_index("condition")
         pts = []
@@ -323,7 +323,7 @@ def terminals() -> dict:
 
 def pipeline_counts(sc: pd.DataFrame) -> dict:
     m = pd.read_csv(ROOT / "data" / "manifest.csv", keep_default_na=False)
-    return {"clips": int(len(m[m["lang"] != "hinglish_human"])), "languages": ["hi", "bn", "ta", "hinglish"],
+    return {"clips": int(len(m[~m["lang"].isin(["hinglish_human", "hinglish_heldout"])])), "languages": ["hi", "bn", "ta", "hinglish"],
             "conditions": list(load_config()["conditions"]), "models": ["prisma-v2.5", "prisma-v3.0", "whisper-small"],
             "transcripts": int(len(sc)), "failed": int((~sc["status"].str.startswith("ok")).sum()),
             "paired_tests": int(len(pd.read_csv(RES / "comparisons.csv")))}
@@ -333,7 +333,7 @@ def main() -> None:
     s = pd.read_csv(RES / "summary.csv")
     c = pd.read_csv(RES / "comparisons.csv")
     sc = pd.read_parquet(RES / "scored_full.parquet")
-    sc = sc[sc["lang"] != "hinglish_human"]
+    sc = sc[~sc["lang"].isin(["hinglish_human", "hinglish_heldout"])]
     data = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "source": "results/summary.csv, results/comparisons.csv, results/scored_full.parquet, results/finding_check.md",

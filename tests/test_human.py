@@ -9,7 +9,19 @@ from shorgul.metrics.aggregate import score_rows
 
 
 def test_is_hinglish():
-    assert is_hinglish("hinglish") and is_hinglish("hinglish_human") and not is_hinglish("hi")
+    assert is_hinglish("hinglish") and is_hinglish("hinglish_human") and is_hinglish("hinglish_heldout")
+    assert not is_hinglish("hi")
+
+
+def test_heldout_script_is_separate_and_valid():
+    from shorgul.config import ROOT, load_config
+    from shorgul.data.tts_generator import read_script
+    cfg = load_config()["data"]
+    held = read_script(ROOT / cfg["heldout_script"])
+    dev = read_script(ROOT / cfg["hinglish_script"])
+    assert len(held) == 25 and all(l["entities"] for l in held)
+    assert not {l["clip_id"] for l in held} & {l["clip_id"] for l in dev}
+    assert not set(cfg["heldout_voices"]) & set(cfg["tts_voices"])
 
 
 def test_human_gets_hinglish_behaviour_but_own_label():

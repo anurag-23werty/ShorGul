@@ -42,6 +42,7 @@ def prepare(
     max_calls: int = typer.Option(0, help="Max NEW TTS API calls (cached lines are free)"),
     noise: bool = typer.Option(True, help="Download DEMAND noise if missing"),
     human: bool = typer.Option(False, help="Add your recordings from data/human/ (refs.csv) as hinglish_human"),
+    heldout: bool = typer.Option(False, help="TTS the held-out script (lang=hinglish_heldout, billed, capped)"),
 ) -> None:
     """Fetch FLEURS subset, (optionally) TTS Hinglish lines, noise; write manifest.csv."""
     from shorgul.data.fleurs_loader import fetch_fleurs
@@ -60,6 +61,10 @@ def prepare(
         from shorgul.data.tts_generator import generate_hinglish
         rows += generate_hinglish(clean, max_calls=max_calls, n=n)
         done_langs.add("hinglish")
+    if heldout:
+        from shorgul.data.tts_generator import generate_hinglish
+        rows += generate_hinglish(clean, max_calls=max_calls, n=n, heldout=True)
+        done_langs.add("hinglish_heldout")
     if human:
         from shorgul.data.human import load_human
         got = load_human(ROOT / "data" / "human", clean)
