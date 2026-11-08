@@ -146,7 +146,7 @@ def score(
 ) -> None:
     """Score hyps.parquet -> results.parquet (per row) + summary.csv (corpus-level per group)."""
     from shorgul.asr.runner import results_dir
-    from shorgul.metrics.aggregate import RESULT_COLS, score_rows, summarize
+    from shorgul.metrics.aggregate import RESULT_COLS, compare, score_rows, summarize
 
     rdir = results_dir(mock)
     hyps = pd.read_parquet(rdir / "hyps.parquet")
@@ -155,13 +155,28 @@ def score(
     scored[RESULT_COLS].to_parquet(rdir / "results.parquet", index=False)
     summ = summarize(scored)
     summ.to_csv(rdir / "summary.csv", index=False)
-    print(f"[score] {len(scored)} rows -> {rdir / 'results.parquet'}")
-    with pd.option_context("display.width", 160, "display.max_rows", 60):
-        print(summ.to_string(index=False))
+    comp = compare(scored)
+    comp.to_csv(rdir / "comparisons.csv", index=False)
+    print(f"[score] {len(scored)} rows -> {rdir / 'results.parquet'}; "
+          f"{len(summ)} groups with 95% CIs -> summary.csv; {len(comp)} paired tests -> comparisons.csv")
     if charts:
         from shorgul.metrics.charts import render_charts
-        for p in render_charts(summ, rdir / "charts"):
+        for p in render_charts(summ, rdir / "charts", comp):
             print(f"[chart] {p}")
+
+
+@app.command("readme-tables")
+def readme_tables(mock: bool = typer.Option(False, help="Use results/mock/")) -> None:
+    """Regenerate the README tables (with 95% CIs) from summary.csv and comparisons.csv."""
+    from shorgul.asr.runner import results_dir
+    from shorgul.config import ROOT
+    from shorgul.report.tables import render, update_readme
+
+    tables = render(results_dir(mock))
+    (results_dir(mock) / "key_numbers.md").write_text(
+        "\n\n".join(f"## {k}\n\n{v}" for k, v in tables.items()) + "\n", encoding="utf-8")
+    done = update_readme(ROOT / "README.md", tables) if not mock else []
+    print(f"[tables] key_numbers.md written; README tables updated: {done or 'none (no markers)'}")
 
 
 if __name__ == "__main__":
