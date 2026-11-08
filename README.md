@@ -3,7 +3,7 @@
 **WER misleads Indian voice-AI teams, and here's the fix.**
 
 ShorGul (शोर-गुल, "din, racket") is a telephony-robustness and entity-accuracy testing tool for Indian-language
-speech recognition. It simulates real Indian phone calls (8 kHz μ-law, packet loss, street and market noise),
+speech recognition. It simulates real Indian phone calls (8 kHz μ-law, packet loss, street and market noise, 8 kbps Opus VoIP),
 scores what a call-centre actually needs (did the **₹ amount** and the **date** survive?), and puts honest
 confidence intervals on every claim.
 
@@ -51,11 +51,11 @@ has 59 unit tests, and on all 3,825 benchmark transcripts it produced **0 regres
 <!-- table:repair -->
 | model (Hinglish) | entity acc. raw → repaired | Δ entity [95% CI] | Δ WER as scored | Δ WER currency-neutral |
 |---|---|---|---|---|
-| Prisma v2.5 (`en-IN`) | 0% → 96% | +96.0 [+90.0, +100.0] * | -34.4 [-39.6, -29.6] * | -27.3 [-32.0, -22.7] * |
-| Prisma v2.5 (`hi-IN`) | 93% → 99% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
-| Prisma v3.0 | 96% → 97% | +1.1 [+0.0, +3.4] | -7.6 [-8.8, -6.6] * | -0.4 [-1.1, +0.0] |
+| Prisma v2.5 (`en-IN`) | 0% → 96% | +96.0 [+90.0, +100.0] * | -34.4 [-39.7, -29.6] * | -27.3 [-32.1, -22.8] * |
+| Prisma v2.5 (`hi-IN`) | 94% → 100% | +6.0 [+0.0, +12.0] | -1.8 [-3.9, +0.0] | -1.8 [-3.9, +0.0] |
+| Prisma v3.0 | 96% → 97% | +1.2 [+0.0, +3.8] | -7.6 [-8.8, -6.6] * | -0.4 [-1.2, +0.0] |
 | Prisma v3.0 + context | 92% → 96% | +4.0 [+0.0, +12.0] | -7.9 [-9.4, -6.6] * | -0.6 [-1.8, +0.0] |
-| Whisper-small | 17% → 25% | +8.0 [+2.3, +14.6] * | -3.8 [-6.2, -1.7] * | -3.8 [-6.2, -1.7] * |
+| Whisper-small | 17% → 25% | +8.0 [+2.5, +14.5] * | -3.9 [-6.3, -1.7] * | -3.9 [-6.3, -1.7] * |
 <!-- /table:repair -->
 
 `*` = significant (paired bootstrap). **Honest positioning:** on Prisma output with `format=transcribe`, Gnani's own
@@ -99,7 +99,8 @@ the gate in mock mode on every push, and checks that the gate catches an injecte
 ## Results
 
 100 clips (25 each of Hindi, Bengali and Tamil from FLEURS, plus 25 Hinglish call-centre lines voiced with Gnani Timbre) ×
-7 conditions × 3 models, plus denoised, context and matched-config variants: **3,825 transcripts, 0 failed.**
+8 conditions (7 PSTN-style + 8 kbps Opus VoIP) × 3 models, plus denoised, context and matched-config variants:
+**4,175 transcripts, 0 failed.**
 Every table here is generated from `results/summary.csv` and `results/comparisons.csv`
 (`python -m shorgul.cli readme-tables`).
 
@@ -121,16 +122,16 @@ Every table here is generated from `results/summary.csv` and `results/comparison
 **Does the phone line hurt? WER change vs clean, same model, same clips** (pts; `*` = significant):
 
 <!-- table:degradation -->
-| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 |
-|---|---|---|---|---|---|---|---|
-| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* |
-| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* |
-| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* |
-| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* |
-| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* |
-| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* |
-| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 |
-| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* |
+| model | lang | phone | loss_5 | traffic_10 | traffic_5 | market_10 | market_0 | opus_voip |
+|---|---|---|---|---|---|---|---|---|
+| prisma-v2.5 | bn | -0.2 | +0.0 | +0.8 | -0.2 | -1.0 | +5.7* | -0.6 |
+| prisma-v2.5 | hi | -0.4 | -0.1 | -0.1 | +0.9 | +0.4 | +6.1* | +0.0 |
+| prisma-v2.5 | hinglish | -0.3 | +0.0 | +0.3 | +0.6 | -0.3 | +3.3* | -0.3 |
+| prisma-v2.5 | ta | +0.7 | +0.9 | +0.5 | +0.7 | +0.7 | +11.2* | +1.4 |
+| prisma-v3.0 | bn | +0.6 | +2.3* | +1.6 | +3.7* | +1.9 | +13.7* | +3.7* |
+| prisma-v3.0 | hi | +0.4 | +1.3 | +1.2 | -0.1 | +0.9 | +12.3* | +1.2 |
+| prisma-v3.0 | hinglish | +0.6 | -1.5 | +1.5 | +1.5 | +2.1 | +2.7 | +0.0 |
+| prisma-v3.0 | ta | +0.2 | -0.5 | -1.6 | -1.4 | -0.5 | +15.3* | +0.9 |
 <!-- /table:degradation -->
 
 What the data supports:
@@ -138,12 +139,15 @@ What the data supports:
    cause no significant WER change in 38 of 40 Prisma model × language × condition cells. **0 dB market babble** breaks both
    models, because babble sits in the speech band and survives the channel. Hinglish entity accuracy doesn't change significantly
    under any condition.
-2. **On verbatim read speech, v2.5 has lower WER than v3.0**, significant pooled over conditions in all three
+2. **WhatsApp-style VoIP (Opus 8 kbps) is almost free too:** no significant WER change in 7 of 8 Prisma model ×
+   language cells. The exception is v3.0 Bengali (+3.7 pts, significant). Hinglish entity accuracy is unchanged. AMR-NB (mobile
+   voice) isn't tested, because no AMR-NB encoder ships with this ffmpeg build.
+3. **On verbatim read speech, v2.5 has lower WER than v3.0**, significant pooled over conditions in all three
    languages (a tie on clean Bengali), and the gap widens at 0 dB.
-3. **Don't put a generic denoiser in front of Prisma.** Spectral gating significantly *raised* WER in 5 of 6 Prisma ×
+4. **Don't put a generic denoiser in front of Prisma.** Spectral gating significantly *raised* WER in 5 of 6 Prisma ×
    language cells on real speech.
-4. **Context hints:** no significant effect on 25 clips.
-5. **Whisper-small isn't a viable baseline for Indic telephony.** It writes Bengali in Devanagari 99% of the time and loops on
+5. **Context hints:** no significant effect on 25 clips.
+6. **Whisper-small isn't a viable baseline for Indic telephony.** It writes Bengali in Devanagari 99% of the time and loops on
    noise.
 
 ![Denoise effect](results/charts/denoise_delta.png)
@@ -153,15 +157,15 @@ What the data supports:
 <!-- table:claims -->
 | claim (A − B) | lang | conditions | metric | Δ (pts) | 95% CI | verdict |
 |---|---|---|---|---|---|---|
-| v3.0 vs v2.5 | hi | all | WER | +3.2 | [+2.1, +4.3] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | bn | all | WER | +3.5 | [+1.3, +6.1] | prisma-v2.5/raw better (significant) |
-| v3.0 vs v2.5 | ta | all | WER | +4.2 | [+0.6, +8.6] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | hi | all | WER | +3.2 | [+2.1, +4.4] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | bn | all | WER | +3.6 | [+1.4, +6.4] | prisma-v2.5/raw better (significant) |
+| v3.0 vs v2.5 | ta | all | WER | +4.2 | [+0.6, +8.5] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | hi | clean | WER | +1.9 | [+0.6, +3.4] | prisma-v2.5/raw better (significant) |
 | v3.0 vs v2.5 | bn | clean | WER | +0.8 | [-1.9, +3.6] | tie (not significant) |
 | v3.0 vs v2.5 | ta | clean | WER | +4.6 | [+0.7, +9.7] | prisma-v2.5/raw better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.9 | [+2.6, +9.2] | prisma-v2.5/matched better (significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.4 | [-4.8, +2.0] | tie (not significant) |
-| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.6 | [+0.0, +7.1] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER | +5.9 | [+2.6, +9.1] | prisma-v2.5/matched better (significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | WER (currency-neutral) | -1.4 | [-4.6, +1.9] | tie (not significant) |
+| v3.0 matched vs v2.5 matched | hinglish | all | entity acc. | +2.5 | [+0.0, +7.0] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | WER | -2.2 | [-5.5, +0.6] | tie (not significant) |
 | v3.0 context vs v3.0 raw | hinglish | all | entity acc. | -4.0 | [-12.0, +0.0] | tie (not significant) |
 | prisma-v2.5 denoised vs raw | hi | all | WER | +2.5 | [+1.2, +3.8] | prisma-v2.5/raw better (significant) |
@@ -191,7 +195,7 @@ It is **not** calibrated for Whisper, whose output churns without getting propor
 ```
 clean speech ── FLEURS hi/bn/ta · Hinglish lines → Gnani Timbre TTS
     │
-    ├─ degrade/   noise @ SNR (caller side) → 300–3400 Hz → 8 kHz μ-law (ffmpeg) → packet loss
+    ├─ degrade/   noise @ SNR (caller side) → 300–3400 Hz → 8 kHz μ-law (ffmpeg) → packet loss · Opus 8 kbps VoIP
     ├─ enhance/   spectral-gating denoise (the "fix" that isn't)
     ├─ asr/       Prisma v2.5 / v3.0 client (backoff, FLAC-on-403) · Whisper-small · mock
     │             └─ every billed call → sqlite cache (sha256 of audio + model + params), --max-calls cap
@@ -205,12 +209,13 @@ clean speech ── FLEURS hi/bn/ta · Hinglish lines → Gnani Timbre TTS
 
 **Cost and safety rails:** every Gnani call goes through the cache, so nothing is billed twice. `--max-calls` defaults to 0 (cache only), and
 `--dry-run` prints planned calls. On 429 the client backs off; on 400 it logs and doesn't retry. The API key is read from `.env` only,
-never logged or written to results, and a test checks this. The whole benchmark used about 2,750 Gnani calls.
+never logged or written to results, and a test checks this. The whole benchmark used about 3,000 Gnani calls.
 
 ## Method and limitations
 
 - **Conditions:** DEMAND noise mixed at the caller at an acoustic SNR measured on active speech, then a 300–3400 Hz
-  band-pass, 8 kHz G.711 μ-law via ffmpeg, and 5% random 20 ms packet loss. Deterministic: seed = sha256(clip | condition).
+  band-pass, 8 kHz G.711 μ-law via ffmpeg, and 5% random 20 ms packet loss. `opus_voip` is a libopus round trip at 8 kbps
+  in VoIP mode, with no PSTN channel. Deterministic: seed = sha256(clip | condition).
 - **Metrics:** corpus WER/CER after NFC, native digits → ASCII, punctuation/danda/₹ removal, and Devanagari nukta/chandrabindu
   folding. Hinglish is compared after romanization. Currency-neutral WER drops ₹/रुपये words from both sides.
 - **Statistics:** 95% percentile bootstrap over clips (1,000 resamples). Model-vs-model claims use a paired cluster
@@ -218,7 +223,7 @@ never logged or written to results, and a test checks this. The whole benchmark 
 - **Limitations:**
   - **25 clips per language**, so many differences are honestly reported as ties.
   - **Hinglish is synthetic TTS speech.** Real callers bring accents, disfluency and crosstalk.
-  - **Telephony is simulated:** no AMR/Opus codecs, echo or AGC yet.
+  - **Telephony is simulated:** Opus VoIP is covered, but AMR-NB mobile voice, echo and AGC are not.
   - **Romanized WER is approximate.**
   - **The v2.5 `en-IN` config followed the original project spec.** It's kept on purpose as the default-style example.
 
