@@ -1,0 +1,11 @@
+{
+ "seconds": 77.8,
+ "chunks": 4,
+ "cuts_in_pause": "3/3",
+ "entities": 25,
+ "entity_acc_long": 0.96,
+ "entity_acc_long_repaired": 0.96,
+ "entity_acc_per_clip_mean": 0.9643,
+ "wer_long": 0.4118,
+ "wer_per_clip_corpus": 0.385
+}
