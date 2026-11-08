@@ -324,6 +324,84 @@ def terminals() -> dict:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+LIVE_CLIP, LIVE_CONDS = "hg_017", ["clean", "phone", "market_0"]
+
+
+def word_times(x: np.ndarray, words: list[str]) -> list[float]:
+    """APPROXIMATE word start times: words spread over the clip's voiced frames, weighted by length.
+    (Prisma's REST API returns no word timestamps; this is labelled as approximate on the site.)"""
+    f = SR // 50
+    n = len(x) // f
+    e = 10 * np.log10(np.mean(x[: n * f].reshape(n, f) ** 2, axis=1) + 1e-10)
+    voiced = e > np.percentile(e, 15) + 0.35 * (np.percentile(e, 95) - np.percentile(e, 15))
+    t_voiced = np.flatnonzero(voiced) * 0.02
+    if len(t_voiced) == 0 or not words:
+        return [0.0] * len(words)
+    weights = np.array([max(len(w), 1) for w in words], dtype=float)
+    starts = np.concatenate([[0.0], np.cumsum(weights)[:-1]]) / weights.sum()
+    return [round(float(t_voiced[min(int(s * len(t_voiced)), len(t_voiced) - 1)]), 2) for s in starts]
+
+
+def mark_words(words: list[str], chips: list[dict]) -> list[str | None]:
+    """Per word: 'ok' if part of a correctly written amount/date, 'bad' if part of a garbled one, else None."""
+    marks: list[str | None] = [None] * len(words)
+    for ch in chips:
+        if not ch.get("shown") or ch["state"] not in ("written", "garbled", "spoken"):
+            continue
+        span = ch["shown"].split()
+        for i in range(len(words) - len(span) + 1):
+            if [w.strip("।,.") for w in words[i:i + len(span)]] == [w.strip("।,.") for w in span]:
+                for j in range(i, i + len(span)):
+                    marks[j] = "ok" if ch["state"] == "written" else "bad"
+                break
+    return marks
+
+
+def _slot(words: list[str], kind: str) -> list[int]:
+    """Indices of the words sitting where an amount (before a currency word) or a date (before तारीख/month) should be,
+    matched loosely so ASR misspellings (रुपे, तारीक) still count. Used to colour WRONG entity words red."""
+    def k(w: str) -> str:
+        return _key(w)
+    cur = lambda w: k(w).startswith(("rup", "रुप", "रप", "रूप")) or k(w) in CURRENCY_WORDS
+    day = lambda w: k(w).startswith(("तारी", "tari", "tare")) or k(w) in ANCHOR_WORDS
+    test = cur if kind == "amount" else day
+    for i, w in enumerate(words):
+        if test(w):
+            j = i
+            while j > 0 and i - j < 3 and not cur(words[j - 1]) and not day(words[j - 1]) and k(words[j - 1]) not in (
+                    "की", "का", "के", "को", "ki", "ka", "ke", "ko", "fee", "फीस", "फी"):
+                j -= 1
+            return [i - 1] if kind == "date" and i > 0 else list(range(j, i + 1))   # a day number sits right before तारीख
+    return []
+
+
+def live_block(sc: pd.DataFrame) -> dict:
+    clean = read_wav(ROOT / "data" / "degraded" / "clean" / f"{LIVE_CLIP}.wav")
+    rows = sc[sc.clip_id == LIVE_CLIP]
+    out = {"clip": LIVE_CLIP, "reference": rows.iloc[0]["reference"], "entities": parse_entities(rows.iloc[0]["entities"]),
+           "duration_s": round(len(clean) / SR, 2), "conditions": [], "timing": "approximate, from speech energy"}
+    for cond in LIVE_CONDS:
+        src = ROOT / "data" / "degraded" / cond / f"{LIVE_CLIP}.wav"
+        encode_mp3(src, OUT / "audio" / f"{LIVE_CLIP}_{cond}.mp3")
+        tr = []
+        for sid, label in (("v30", "Gnani Prisma v3.0"), ("whisper", "Whisper-small (generic)")):
+            model, var = {"v30": ("prisma-v3.0", "raw"), "whisper": ("whisper-small", "raw")}[sid]
+            r = rows[(rows.model == model) & (rows.variant == var) & (rows.condition == cond)].iloc[0]
+            words = r.hypothesis.split()
+            chips = [chip_state(e, r.hypothesis) for e in out["entities"]]
+            marks = mark_words(words, chips)
+            for ch in chips:   # a wrong or missing entity: colour the words occupying its slot red
+                if ch["state"] != "written":
+                    for i in _slot(words, "amount" if ch["entity"].startswith("₹") else "date"):
+                        if marks[i] is None:
+                            marks[i] = "bad"
+            tr.append({"system": sid, "label": label, "words": words, "t": word_times(clean, words),
+                       "marks": marks, "chips": chips})
+        out["conditions"].append({"id": cond, "audio": f"audio/{LIVE_CLIP}_{cond}.mp3", "peaks": peaks(read_wav(src), 240),
+                                  "transcripts": tr})
+    return out
+
+
 COND_CARDS = [  # (condition id, label, what it is) - one real FLEURS Hindi clip rendered in each
     ("clean", "Clean", "16 kHz recording, no phone line"),
     ("phone", "Phone line", "300–3400 Hz band-pass, 8 kHz G.711 μ-law"),
@@ -395,6 +473,7 @@ def main() -> None:
         "pipeline": pipeline_counts(sc),
         "validation": json.loads((RES / "validation.json").read_text()),
         "conditions": condition_cards(s, c),
+        "live": live_block(sc),
         "findings": findings_rows(s, c, RES),
     }
     OUT.mkdir(parents=True, exist_ok=True)

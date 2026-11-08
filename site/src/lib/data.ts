@@ -20,7 +20,7 @@ export type Data = {
   systems: System[];
   entity_by_condition: Record<string, Record<string, CI & { n: number }>>;
   rankings: any; degradation: any; repair: any; terminals: any; pipeline: any; validation: any;
-  conditions: any; findings: any;
+  conditions: any; findings: any; live: any;
   examples: Example[];
 };
 

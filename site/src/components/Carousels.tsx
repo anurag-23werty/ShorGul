@@ -1,6 +1,7 @@
 import type { Data } from "../lib/data";
 import { asset, pct, transcript } from "../lib/data";
 import { Carousel } from "./Carousel";
+import { CountUp, TypeCmd } from "./Live";
 import s from "./Carousels.module.css";
 import { useClip } from "./useClip";
 import { wavePath } from "./wave";
@@ -63,9 +64,9 @@ export function FindingsCarousel({ data }: { data: Data }) {
   const rows: Finding[] = data.findings;
   const slides = rows.map((f, i) => (
     <article key={i} className={s.card}>
-      <div className={s.big}>{f.big}</div>
+      <div className={s.big}><CountUp text={f.big} /></div>
       <p className={s.findingText}>{f.finding}</p>
-      <p className={s.rest}>{f.rest}</p>
+      <p className={s.rest}><CountUp text="" after={f.rest} ms={1100} /></p>
       <div className={s.test}>{f.test}</div>
     </article>
   ));
@@ -109,21 +110,21 @@ export function UsersCarousel({ data }: { data: Data }) {
       <div className={s.kicker}>voice-bot team · before go-live</div>
       <h3 className={s.title}>Grade the bot's audio before customers call it.</h3>
       <p className={s.desc}>No reference transcripts. Each call is replayed through a phone line, packet loss, traffic and 0 dB market noise.</p>
-      <div className={s.cmd}><span>$ </span>{t.voicebot_golive.command}</div>
+      <TypeCmd className={s.cmd} cmd={t.voicebot_golive.command} />
       <AuditPreview table={t.voicebot_golive.table} grade={g(t.voicebot_golive.output, /grade (\w)/)} />
     </article>,
     <article key="se" className={s.card}>
       <div className={s.kicker}>solutions engineer · in a deal</div>
       <h3 className={s.title}>Run the prospect's calls, send back one report.</h3>
       <p className={s.desc}>A grade, the breaking point ({g(t.solutions_deal.output, /breaks at (\w+)/).replace("_", " ")}) and the worst calls, in one self-contained HTML file.</p>
-      <div className={s.cmd}><span>$ </span>{t.solutions_deal.command}</div>
+      <TypeCmd className={s.cmd} cmd={t.solutions_deal.command} />
       <AuditPreview table={t.solutions_deal.table} grade={g(t.solutions_deal.output, /grade (\w)/)} />
     </article>,
     <article key="ml" className={s.card}>
       <div className={s.kicker}>ML team · release gate</div>
       <h3 className={s.title}>Fail CI only on a significant regression.</h3>
       <p className={s.desc}>Paired bootstrap on the same clips; exit code 1 stops the pipeline.</p>
-      <div className={s.cmd}><span>$ </span>{t.release_gate_entity.command}</div>
+      <TypeCmd className={s.cmd} cmd={t.release_gate_entity.command} />
       <div className={s.preview}>
         <span className={s.pass}>{lastLine(t.release_gate_entity.output)}</span>
         <span className={s.fail}>{lastLine(t.release_gate_wer.output)}</span>
@@ -134,7 +135,7 @@ export function UsersCarousel({ data }: { data: Data }) {
       <div className={s.kicker}>anyone storing money in transcripts</div>
       <h3 className={s.title}>Turn spoken amounts into numbers a CRM can read.</h3>
       <p className={s.desc}>Model-agnostic and anchored: "do teen log" and "kar do" stay untouched.</p>
-      <div className={s.cmd}><span>&gt;&gt;&gt; </span>repair("{before.entities[0]?.shown ?? ""}")</div>
+      <TypeCmd className={s.cmd} prompt=">>> " cmd={`repair("${before.entities[0]?.shown ?? ""}")`} />
       <div className={s.preview}>
         <div className={s.snippet}><s>{before.text}</s></div>
         <div className={s.snippet}>{before.repaired.split(/(₹[\d,]+|\b\d+\b)/).map((p, i) => (/^(₹[\d,]+|\d+)$/.test(p) ? <mark key={i}>{p}</mark> : p))}</div>

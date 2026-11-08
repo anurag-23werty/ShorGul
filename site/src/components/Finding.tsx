@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { CI, Data } from "../lib/data";
 import { ciText, pct } from "../lib/data";
+import { CountUp } from "./Live";
 import { gsap, reducedMotion } from "../lib/motion";
 import s from "./Finding.module.css";
 
@@ -66,8 +67,9 @@ export function Finding({ data }: { data: Data }) {
           </p>
           <div className={s.callout}>
             <div className={s.calloutBig}>
-              {pct(en.entity.value)} <span aria-hidden>→</span> <span className={s.to}>{pct(v25hi.entity.value, 1)}</span>
+              {pct(en.entity.value)} <span aria-hidden>→</span> <CountUp className={s.to} text={pct(v25hi.entity.value, 1)} ms={1400} />
             </div>
+            <div className={s.calloutSmall}><CountUp text="" ms={1400} after={<>95% CI {ciText(v25hi.entity, 1)}</>} /></div>
             <div className={s.calloutSmall}>Prisma v2.5, same audio, one setting: language_code en-IN → hi-IN.</div>
           </div>
         </div>
