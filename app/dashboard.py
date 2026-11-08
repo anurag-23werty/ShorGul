@@ -272,7 +272,7 @@ with tabs[3]:
                           (a2, f"Degraded: {cond}", path("degraded") / cond / f"{clip}.wav"),
                           (a3, "Denoised", path("enhanced") / cond / f"{clip}.wav")):
         col.caption(label)
-        col.audio(str(p)) if p.exists() else col.write("(audio not available here: run degrade/enhance locally)")
+        col.audio(str(p)) if p.exists() else col.write("(benchmark audio isn't hosted: clone the repo and run degrade/enhance to listen)")
     rows = scored[(scored["clip_id"] == clip) & (scored["condition"] == cond)]
     if len(rows):
         st.markdown(f"**Reference:** {mark(rows.iloc[0]['reference'])}", unsafe_allow_html=True)
@@ -285,6 +285,15 @@ with tabs[3]:
                        f"<td>{mark(r.hypothesis)}</td><td>{mark(rep) if rep != r.hypothesis else '<small>(unchanged)</small>'}</td>"
                        f"<td align=center>{pct(r.wer)}</td><td align=center>{ent}</td></tr>")
         st.markdown("".join(out) + "</table>", unsafe_allow_html=True)
+
+@st.cache_data
+def benchmark_profiles() -> pd.DataFrame:
+    """From the local degraded benchmark audio if present, else the committed snapshot (hosted deployments)."""
+    from shorgul.health.check import condition_profiles
+    prof = condition_profiles(path("degraded"), CONDS)
+    snap = path("results") / "condition_profiles.csv"
+    return prof if len(prof) or not snap.exists() else pd.read_csv(snap)
+
 
 # ---------------------------------------------------------------- 5. try your audio
 with tabs[4]:
@@ -302,7 +311,7 @@ with tabs[4]:
     if up is not None:
         from shorgul.audit.quick import conditions_available, load_clip, quick_audit
         from shorgul.degrade.pipeline import load_noises
-        from shorgul.health.check import check, condition_profiles, nearest_condition
+        from shorgul.health.check import check, nearest_condition
         try:
             audio = load_clip(up.getvalue())
         except Exception as e:  # noqa: BLE001 - show any decode/length problem to the user
@@ -314,7 +323,7 @@ with tabs[4]:
         m1.metric("SNR estimate", f"{h.snr_db:.0f} dB")
         m2.metric("Energy > 4.2 kHz", "wideband" if h.hf_ratio >= 3e-4 else "narrowband (phone)")
         m3.metric("Packet-loss gaps", f"{h.dropout_pct:.1f}%")
-        m4.metric("Nearest benchmark condition", nearest_condition(h, condition_profiles(path("degraded"), CONDS)))
+        m4.metric("Nearest benchmark condition", nearest_condition(h, benchmark_profiles()))
         noises = load_noises()
         conds = conditions_available(noises)
         n_calls = 0 if t_mock else 1 + len(conds)
