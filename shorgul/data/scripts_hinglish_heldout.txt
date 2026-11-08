@@ -1,0 +1,27 @@
+# HELD-OUT set. Written and committed BEFORE any audio/transcript existed; never used to develop entity repair.
+# id|text|entities (";"-separated). Harder than the dev set: lakh-scale amounts, two amounts per line, odd values.
+hh_000|सर, आपकी car loan की EMI ₹13,750 है और यह 4 जनवरी को auto-debit होगी।|₹13,750;4 जनवरी
+hh_001|मैंने कल ₹1,25,000 NEFT से transfer किए थे, अभी तक credit नहीं हुए।|₹1,25,000
+hh_002|आपका policy renewal ₹8,999 का है, last date 27 फरवरी है।|₹8,999;27 फरवरी
+hh_003|मैडम, आपके account में ₹320 का service charge लगा है।|₹320
+hh_004|हम आपको ₹2,400 का refund 11 सितंबर तक भेज देंगे।|₹2,400;11 सितंबर
+hh_005|मेरी salary ₹46,000 है, क्या मुझे ₹3,00,000 का personal loan मिल सकता है?|₹46,000;₹3,00,000
+hh_006|आपकी FD पर ₹6,180 का interest 30 जून को credit हुआ है।|₹6,180;30 जून
+hh_007|credit card bill ₹19,640 का है, minimum due ₹980 है।|₹19,640;₹980
+hh_008|आपकी अगली EMI 22 तारीख को कटेगी।|22
+hh_009|सर, ₹75 का SMS alert charge हर quarter लगता है।|₹75
+hh_010|मैंने 9 अप्रैल को ₹4,050 का bill pay किया था पर receipt नहीं आई।|9 अप्रैल;₹4,050
+hh_011|आपका loan ₹2,75,000 का sanction हो गया है, disbursement 2 नवंबर को होगा।|₹2,75,000;2 नवंबर
+hh_012|gas cylinder की booking ₹1,105 में हुई है, delivery 16 तारीख तक होगी।|₹1,105;16
+hh_013|आपके wallet में ₹510 का cashback आ गया है।|₹510
+hh_014|मेरी EMI ₹11,200 से कम करके ₹9,800 कर दीजिए।|₹11,200;₹9,800
+hh_015|आपका broadband plan ₹699 का है और 13 अक्टूबर को renew होगा।|₹699;13 अक्टूबर
+hh_016|सर, penalty के ₹1,500 waive कर दिए गए हैं।|₹1,500
+hh_017|आपके account से 28 दिसंबर को ₹12,000 ATM से निकाले गए थे।|28 दिसंबर;₹12,000
+hh_018|school fees ₹38,500 है, 5 जुलाई तक जमा करनी है।|₹38,500;5 जुलाई
+hh_019|insurance claim के ₹64,250 आपके account में 19 मई को आएंगे।|₹64,250;19 मई
+hh_020|मुझे ₹200 का recharge करना था, पर ₹2,000 कट गए।|₹200;₹2,000
+hh_021|आपकी gold loan limit ₹1,80,000 तक है।|₹1,80,000
+hh_022|electricity bill ₹2,315 का है, due date 24 मार्च है।|₹2,315;24 मार्च
+hh_023|आपका KYC 7 अगस्त को verify हो गया है।|7 अगस्त
+hh_024|सर, outstanding ₹5,670 है, आज pay करेंगे तो late fee ₹350 नहीं लगेगी।|₹5,670;₹350
