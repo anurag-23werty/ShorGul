@@ -15,7 +15,8 @@ def test_seed_stable_across_processes():
 
 def test_config_has_all_conditions():
     conds = load_config()["conditions"]
-    assert list(conds) == ["clean", "phone", "loss_5", "traffic_10", "traffic_5", "market_10", "market_0"]
+    assert list(conds)[:7] == ["clean", "phone", "loss_5", "traffic_10", "traffic_5", "market_10", "market_0"]
+    assert "opus_voip" in conds
 
 
 def test_hinglish_script():

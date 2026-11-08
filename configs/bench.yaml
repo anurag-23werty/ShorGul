@@ -25,6 +25,8 @@ conditions:
   traffic_5:  {phone: true, noise: traffic, snr_db: 5}
   market_10:  {phone: true, noise: market, snr_db: 10}
   market_0:   {phone: true, noise: market, snr_db: 0}
+  # Phase F: VoIP (WhatsApp-style) call on a weak link. AMR-NB skipped: no encoder in this ffmpeg build.
+  opus_voip:  {codec: opus, bitrate: 8k}
 
 phone:
   low_hz: 300
@@ -37,9 +39,9 @@ packet_loss:
 asr:
   # language_code per manifest lang, per model family
   lang_codes:
-    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN}
-    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN"}
-  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi}
+    prisma-v2.5: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: en-IN, hinglish_human: en-IN}
+    prisma-v3.0: {hi: hi-IN, bn: bn-IN, ta: ta-IN, hinglish: "hi-IN,en-IN", hinglish_human: "hi-IN,en-IN"}
+  whisper_langs: {hi: hi, bn: bn, ta: ta, hinglish: hi, hinglish_human: hi}
   # Static domain context (NOT derived from per-clip references -> no leakage)
   context:
     topic: "Indian bank customer-care call about loan EMI, account, KYC and payment due dates"

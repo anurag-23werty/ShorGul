@@ -31,3 +31,12 @@ def test_conditions_deterministic_and_length():
         assert np.array_equal(a, b), cond
     a, _ = degrade_audio(x, "clip", "clean", noises)
     assert np.array_equal(a, x)
+
+
+def test_opus_voip_keeps_length_is_deterministic_and_lossy():
+    x = _wideband()
+    a, _ = degrade_audio(x, "clip", "opus_voip", {})
+    b, _ = degrade_audio(x, "clip", "opus_voip", {})
+    assert len(a) == len(x) and np.array_equal(a, b)
+    f, p = welch(a, fs=16000, nperseg=1024)
+    assert p[f > 5000].mean() < p[(f > 300) & (f < 3000)].mean() / 100  # 8 kbps Opus drops to narrowband
