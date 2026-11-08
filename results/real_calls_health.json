@@ -1,0 +1,75 @@
+{
+ "n_real": 60,
+ "n_real_dropout": 24,
+ "n_real_clean_line": 36,
+ "medians": {
+  "REAL clean_line": {
+   "snr_db": 29.5995,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "REAL dropout": {
+   "snr_db": 25.9965,
+   "hf_ratio": 0.0005,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim amrnb_mobile": {
+   "snr_db": 32.29,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim clean": {
+   "snr_db": 30.159,
+   "hf_ratio": 0.001,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim loss_5": {
+   "snr_db": 32.606,
+   "hf_ratio": 0.0,
+   "dropout_pct": 4.905,
+   "clipping_pct": 0.0
+  },
+  "sim market_0": {
+   "snr_db": 13.234,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim market_10": {
+   "snr_db": 20.1,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim opus_voip": {
+   "snr_db": 35.055,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  },
+  "sim phone": {
+   "snr_db": 30.656,
+   "hf_ratio": 0.0,
+   "dropout_pct": 0.0,
+   "clipping_pct": 0.0
+  }
+ },
+ "dropout_detector_auc": 0.521,
+ "flagged_loss_rate": {
+  "real_dropout": 0.0,
+  "real_clean_line": 0.0
+ },
+ "real_narrowband_share": 0.567,
+ "nearest_condition_counts": {
+  "clean": 26,
+  "phone": 25,
+  "traffic_10": 5,
+  "market_0": 2,
+  "traffic_5": 1,
+  "market_10": 1
+ }
+}
