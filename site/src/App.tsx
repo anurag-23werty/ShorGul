@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { CallScene } from "./components/CallScene";
+import { Curves } from "./components/Curves";
+import { Finding } from "./components/Finding";
+import { Fix } from "./components/Fix";
 import { Hero } from "./components/Hero";
 import type { Data } from "./lib/data";
 import { loadData } from "./lib/data";
@@ -24,8 +27,11 @@ export default function App() {
       <Hero data={data} />
       <main>
         <CallScene data={data} />
+        <Finding data={data} />
+        <Fix data={data} />
+        <Curves data={data} />
         <section className="wrap" style={{ padding: "160px var(--gutter)", color: "var(--ink-3)" }}>
-          <p className="mono">Sections 3–8 come next: the finding, the fix, curves, who uses it, how it works, close.</p>
+          <p className="mono">Sections 6–8 come next: who uses it, how it works, close.</p>
         </section>
       </main>
     </>

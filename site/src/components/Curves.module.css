@@ -1,0 +1,31 @@
+.section { padding: 160px 0; border-bottom: 1px solid var(--line); }
+.head { display: grid; grid-template-columns: repeat(12, 1fr); gap: 0 24px; margin-bottom: 40px; }
+.headL { grid-column: 1 / span 6; }
+.headR { grid-column: 8 / span 5; align-self: end; }
+.h2 { font-size: clamp(28px, 3.2vw, 40px); line-height: 1.08; letter-spacing: -0.03em; font-weight: 600; margin: 0; max-width: 18ch; }
+.p { color: var(--ink-2); margin: 0; }
+.controls { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; }
+.seg button { height: 34px; padding: 0 12px; background: transparent; border: 0; cursor: pointer; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); transition: color 200ms ease-out, background-color 200ms ease-out; }
+.seg button[aria-pressed="true"] { color: var(--bg); background: var(--ink); }
+.seg button + button { border-left: 1px solid var(--line-2); }
+.chartWrap { position: relative; }
+.svg { display: block; width: 100%; height: auto; overflow: visible; }
+.grid line { stroke: var(--line); }
+.axis text { fill: var(--ink-3); font-family: var(--font-mono); font-size: 11px; }
+.band { opacity: 0.12; }
+.path { fill: none; stroke-width: 2; }
+.dot { stroke: var(--bg); stroke-width: 2; }
+.hit { fill: transparent; cursor: crosshair; }
+.hit:focus-visible { outline: none; stroke: var(--ink); stroke-width: 1; }
+.endLabel { font-family: var(--font-mono); font-size: 11px; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; font-size: 12px; font-family: var(--font-mono); min-width: 200px; transform: translate(-50%, calc(-100% - 14px)); color: var(--ink); z-index: 2; }
+.tip b { font-weight: 500; }
+.tip small { display: block; color: var(--ink-3); margin-top: 4px; font-size: 11px; }
+.note { margin-top: 14px; font-size: 13px; color: var(--ink-3); max-width: 70ch; }
+@media (max-width: 900px) {
+  .section { padding: 96px 0; }
+  .headL, .headR { grid-column: 1 / -1; }
+  .headR { margin-top: 16px; }
+  .tip { min-width: 180px; transform: translate(-60%, calc(-100% - 14px)); }
+}
