@@ -41,7 +41,11 @@ def degraded_path(condition: str, clip_id: str) -> Path:
 
 
 def load_noises() -> dict[str, np.ndarray]:
-    return {p.stem: read_wav(p) for p in path("noise").glob("*.wav")}
+    """Full DEMAND noise (data/noise, from `prepare`) or, on a fresh clone, the bundled 20 s excerpts."""
+    noises = {p.stem: read_wav(p) for p in path("noise").glob("*.wav")}
+    if not noises:
+        noises = {p.stem: read_wav(p) for p in (ROOT / "samples" / "noise").glob("*.wav")}
+    return noises
 
 
 def degrade_all(manifest: pd.DataFrame, conditions: list[str], force: bool = False) -> pd.DataFrame:
