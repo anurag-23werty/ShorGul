@@ -165,6 +165,28 @@ def score(
             print(f"[chart] {p}")
 
 
+@app.command("stability")
+def stability_cmd() -> None:
+    """Validate the label-free stability score against true WER increase on FLEURS."""
+    from shorgul.audit.stability import folder_level, plot_validation, stability_table, validate
+
+    rdir = path("results")
+    scored = pd.read_parquet(rdir / "scored_full.parquet")
+    table = stability_table(scored[scored["lang"] != "hinglish"])
+    folder = folder_level(table, pd.read_csv(rdir / "summary.csv"))
+    v = validate(table)
+    v.to_csv(rdir / "stability_validation.csv", index=False)
+    folder.to_csv(rdir / "stability_folder_level.csv", index=False)
+    plot_validation(table, folder, rdir / "charts" / "stability_validation.png")
+    print("[stability] per clip (stability vs true WER increase):")
+    print(v.to_string(index=False))
+    from scipy.stats import spearmanr
+    for name, g in [("prisma", folder[folder["model"].str.startswith("prisma")]), ("all", folder)]:
+        r, p = spearmanr(g["mean_stability"], g["wer_increase"])
+        print(f"[stability] folder level, {name}: rho={r:.3f} p={p:.2g} (n={len(g)})")
+    print(f"[chart] {rdir / 'charts' / 'stability_validation.png'}")
+
+
 @app.command("readme-tables")
 def readme_tables(mock: bool = typer.Option(False, help="Use results/mock/")) -> None:
     """Regenerate the README tables (with 95% CIs) from summary.csv and comparisons.csv."""
