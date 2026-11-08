@@ -27,8 +27,9 @@ conditions:
   traffic_5:  {phone: true, noise: traffic, snr_db: 5}
   market_10:  {phone: true, noise: market, snr_db: 10}
   market_0:   {phone: true, noise: market, snr_db: 0}
-  # Phase F: VoIP (WhatsApp-style) call on a weak link. AMR-NB skipped: no encoder in this ffmpeg build.
+  # Phase F: VoIP (WhatsApp-style) call on a weak link, and a mobile call on AMR-NB 12.2 kbps
   opus_voip:  {codec: opus, bitrate: 8k}
+  amrnb_mobile: {codec: amrnb, mode: MR122}   # via libopencore-amrnb (shorgul/degrade/amr.py)
 
 phone:
   low_hz: 300

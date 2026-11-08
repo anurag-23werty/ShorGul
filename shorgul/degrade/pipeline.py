@@ -22,6 +22,9 @@ def degrade_audio(audio: np.ndarray, clip_id: str, condition: str,
     out = audio
     if "noise" in spec:
         out = mix_at_snr(out, noises[spec["noise"]], spec["snr_db"], rng)
+    if spec.get("codec") == "amrnb":  # mobile path: AMR-NB instead of PSTN mu-law
+        from shorgul.degrade.telephony import mobile_channel
+        out = mobile_channel(out, spec.get("mode", "MR122"))
     if spec.get("codec") == "opus":  # VoIP path: no PSTN mu-law, just a low-bitrate Opus round trip
         from shorgul.degrade.codecs import opus_roundtrip
         out = opus_roundtrip(out, spec.get("bitrate", "8k"))

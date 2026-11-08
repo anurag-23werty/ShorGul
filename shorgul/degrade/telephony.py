@@ -18,3 +18,15 @@ def phone_channel(audio: np.ndarray, low_hz: int = 300, high_hz: int = 3400, rat
     nb = mulaw_roundtrip_8k(np.frombuffer(nb, dtype=np.float32))
     up = ffmpeg_pipe(nb, ["-f", "f32le", "-ar", str(rate), "-ac", "1"], ["-ar", "16000", "-f", "f32le"])
     return _fit(np.frombuffer(up, dtype=np.float32).copy(), len(audio))
+
+
+def mobile_channel(audio: np.ndarray, mode: str = "MR122", low_hz: int = 300, high_hz: int = 3400) -> np.ndarray:
+    """Narrowband mobile call: handset band-pass -> 8 kHz -> AMR-NB (default 12.2 kbps) -> back to 16 kHz."""
+    from shorgul.degrade.amr import amrnb_roundtrip
+    f32_16k = ["-f", "f32le", "-ar", "16000", "-ac", "1"]
+    bp = f"highpass=f={low_hz},highpass=f={low_hz},lowpass=f={high_hz},lowpass=f={high_hz}"
+    nb = np.frombuffer(ffmpeg_pipe(audio.astype(np.float32), f32_16k, ["-af", bp, "-ar", "8000", "-f", "f32le"]),
+                       dtype=np.float32)
+    nb = amrnb_roundtrip(nb, mode)
+    up = ffmpeg_pipe(nb, ["-f", "f32le", "-ar", "8000", "-ac", "1"], ["-ar", "16000", "-f", "f32le"])
+    return _fit(np.frombuffer(up, dtype=np.float32).copy(), len(audio))
