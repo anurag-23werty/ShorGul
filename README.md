@@ -6,7 +6,7 @@
 ![python](https://img.shields.io/badge/python-3.11%2B-3776AB)
 [![licence: MIT](https://img.shields.io/badge/licence-MIT-informational)](LICENSE)
 
-**[Website](https://anurag-23werty.github.io/ShorGul/)** · [Detailed results](docs/RESULTS.md) · [Validation on real audio](results/validation.md) · [How the headline was checked](results/finding_check.md) · [Pilot protocol](docs/PILOT.md)
+**[Website](https://anurag-23werty.github.io/ShorGul/)** · **[Dashboard](https://shorgul.streamlit.app/)** · [Detailed results](docs/RESULTS.md) · [Validation on real audio](results/validation.md) · [How the headline was checked](results/finding_check.md) · [Pilot protocol](docs/PILOT.md)
 
 ---
 
@@ -54,8 +54,11 @@ open results/audits/calls/report.html    # Linux: xdg-open
 
 ### Dashboard
 
+Hosted at **[shorgul.streamlit.app](https://shorgul.streamlit.app/)** (results, charts, sample audits, and "try your audio"
+in mock mode or with your own key). To run it locally, with the benchmark audio players:
+
 ```bash
-.venv/bin/streamlit run app/dashboard.py      # local for now; a hosted link will go here
+.venv/bin/streamlit run app/dashboard.py
 ```
 
 `samples/` has 6 synthetic Hinglish customer-care calls and 20-second noise excerpts, so the audit runs without any

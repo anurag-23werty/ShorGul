@@ -4,7 +4,7 @@ import s from "./Close.module.css";
 
 const REPO = "https://github.com/anurag-23werty/ShorGul";
 const FINDING = `${REPO}/blob/main/results/finding_check.md`;
-const DASHBOARD = `${REPO}#dashboard`;   // hosted link replaces this once the dashboard is deployed
+const DASHBOARD = "https://shorgul.streamlit.app/";
 const ME = { name: "Anurag Choudhury", github: "https://github.com/anurag-23werty", linkedin: "https://www.linkedin.com/in/anurag-choudhury-ai/" };
 
 export function Close({ data }: { data: Data }) {
