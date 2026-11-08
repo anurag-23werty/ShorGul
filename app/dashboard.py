@@ -68,31 +68,45 @@ if len(clean):
 # --- WER vs condition ---------------------------------------------------------
 st.subheader("WER by condition")
 metric = st.radio("Metric", ["wer", "cer"], horizontal=True, format_func=str.upper)
-line = (alt.Chart(view).mark_line(point=alt.OverlayMarkDef(size=60, filled=True), strokeWidth=2)
-        .encode(x=alt.X("condition:N", sort=CONDS, title=None),
-                y=alt.Y(f"{metric}:Q", title=metric.upper(), axis=alt.Axis(format="%")),
-                color=alt.Color("series:N", scale=COLOR, title="Model"),
-                tooltip=["lang", "series", "condition", alt.Tooltip(f"{metric}:Q", format=".1%"),
-                         alt.Tooltip("entity_hit_rate:Q", format=".0%"), "n",
-                         alt.Tooltip("runaway_rate:Q", format=".0%", title="runaway")])
-        .properties(height=260, width=260)
-        .facet(column=alt.Column("lang:N", title=None, sort=list(LANG_NAMES))))
+st.caption("Shaded band = 95% bootstrap CI over clips. Model-vs-model verdicts use paired tests: see the table below.")
+base = alt.Chart(view).encode(
+    x=alt.X("condition:N", sort=CONDS, title=None),
+    color=alt.Color("series:N", scale=COLOR, title="Model"))
+band = base.mark_area(opacity=0.15).encode(y=alt.Y(f"{metric}_lo:Q"), y2=f"{metric}_hi:Q")
+pts = base.mark_line(point=alt.OverlayMarkDef(size=60, filled=True), strokeWidth=2).encode(
+    y=alt.Y(f"{metric}:Q", title=f"{metric.upper()} (band = 95% CI)", axis=alt.Axis(format="%")),
+    tooltip=["lang", "series", "condition", alt.Tooltip(f"{metric}:Q", format=".1%"),
+             alt.Tooltip(f"{metric}_lo:Q", format=".1%", title="95% CI low"),
+             alt.Tooltip(f"{metric}_hi:Q", format=".1%", title="95% CI high"), "n",
+             alt.Tooltip("runaway_rate:Q", format=".0%", title="runaway")])
+line = (band + pts).properties(height=260, width=260).facet(
+    column=alt.Column("lang:N", title=None, sort=list(LANG_NAMES)))
 st.altair_chart(line)
 
 # --- Hinglish entities ---------------------------------------------------------
 ent = view[(view["lang"] == "hinglish") & view["entity_hit_rate"].notna()]
 if len(ent):
     st.subheader("Hinglish call-centre: did the ₹ amount and date survive?")
-    bars = (alt.Chart(ent).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3)
-            .encode(x=alt.X("condition:N", sort=CONDS, title=None), xOffset="series:N",
-                    y=alt.Y("entity_hit_rate:Q", title="Entity hit rate", scale=alt.Scale(domain=[0, 1]),
-                            axis=alt.Axis(format="%")),
-                    color=alt.Color("series:N", scale=COLOR, title="Model"),
-                    tooltip=["series", "condition", alt.Tooltip("entity_hit_rate:Q", format=".0%"), "n"])
-            .properties(height=280))
+    eb = alt.Chart(ent).encode(x=alt.X("condition:N", sort=CONDS, title=None), xOffset="series:N")
+    bars = (eb.mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                y=alt.Y("entity_hit_rate:Q", title="Entity hit rate (whiskers = 95% CI)",
+                        scale=alt.Scale(domain=[0, 1]), axis=alt.Axis(format="%")),
+                color=alt.Color("series:N", scale=COLOR, title="Model"),
+                tooltip=["series", "condition", alt.Tooltip("entity_hit_rate:Q", format=".0%"),
+                         alt.Tooltip("entity_hit_rate_lo:Q", format=".0%", title="95% CI low"),
+                         alt.Tooltip("entity_hit_rate_hi:Q", format=".0%", title="95% CI high"), "n"])
+            + eb.mark_rule(color="#52514e").encode(y="entity_hit_rate_lo:Q", y2="entity_hit_rate_hi:Q")
+            ).properties(height=280)
     st.altair_chart(bars, width="stretch")
 
-with st.expander("Summary table"):
+comp_path = path("results") / ("mock" if source == "mock" else "") / "comparisons.csv"
+if comp_path.exists():
+    with st.expander("Paired significance tests (A − B, 95% CI)"):
+        comp = pd.read_csv(comp_path)
+        comp = comp[comp["lang"].isin(langs)]
+        st.dataframe(comp, width="stretch", hide_index=True)
+
+with st.expander("Summary table (with 95% CIs)"):
     st.dataframe(view.drop(columns=["series"]), width="stretch", hide_index=True)
 
 # --- clip explorer ------------------------------------------------------------
