@@ -22,3 +22,4 @@ results/audits/*/market_*/
 data/human/*.wav
 data/human/*.flac
 data/human/*.ogg
+*.egg-info/
