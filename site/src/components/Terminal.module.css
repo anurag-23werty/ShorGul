@@ -1,0 +1,9 @@
+.term { border: 1px solid var(--line); border-radius: 10px; background: #08080a; overflow: hidden; }
+.bar { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.body { margin: 0; padding: 14px 14px 16px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; white-space: pre; color: var(--ink-2); min-height: 10em; }
+.cmd { color: var(--ink); }
+.prompt { color: var(--ink-3); user-select: none; }
+.pass { color: var(--accent); }
+.fail { color: var(--error); }
+.caret { display: inline-block; width: 7px; height: 1.05em; background: var(--ink); vertical-align: text-bottom; margin-left: 1px; }
+@media (max-width: 640px) { .body { font-size: 11px; } .bar span:last-child { display: none; } }

@@ -4,6 +4,7 @@ import { Curves } from "./components/Curves";
 import { Finding } from "./components/Finding";
 import { Fix } from "./components/Fix";
 import { Hero } from "./components/Hero";
+import { Users } from "./components/Users";
 import type { Data } from "./lib/data";
 import { loadData } from "./lib/data";
 import { ScrollTrigger, startSmoothScroll } from "./lib/motion";
@@ -30,9 +31,7 @@ export default function App() {
         <Finding data={data} />
         <Fix data={data} />
         <Curves data={data} />
-        <section className="wrap" style={{ padding: "160px var(--gutter)", color: "var(--ink-3)" }}>
-          <p className="mono">Sections 6–8 come next: who uses it, how it works, close.</p>
-        </section>
+        <Users data={data} />
       </main>
     </>
   );
