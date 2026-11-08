@@ -1,0 +1,32 @@
+.close { padding: 160px 0 48px; }
+.big { font-size: clamp(32px, 4.6vw, 56px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 600; margin: 0; max-width: 18ch; }
+.links { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--line-2); text-decoration: none; font-size: 15px; transition: border-color 200ms ease-out, background-color 200ms ease-out; }
+.btn:hover { border-color: var(--ink-3); }
+.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 500; }
+.primary:hover { background: #fff; }
+.method { margin-top: 120px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 0 24px; border-top: 1px solid var(--line); padding-top: 40px; }
+.methodHead { grid-column: 1 / span 4; }
+.methodHead h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 8px; }
+.methodHead p { color: var(--ink-3); font-size: 14px; margin: 0; max-width: 34ch; }
+.methodBody { grid-column: 6 / span 7; }
+.dl { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 12px 20px; font-size: 14px; }
+.dl dt { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); padding-top: 2px; }
+.dl dd { margin: 0; color: var(--ink-2); }
+.limits { margin: 24px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+.limits li { margin-bottom: 6px; }
+.limits b { color: var(--ink); font-weight: 500; }
+.foot { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--ink-3); }
+.foot a { text-decoration: none; color: var(--ink-2); }
+.foot a:hover { color: var(--ink); }
+.me { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.me strong { color: var(--ink); font-weight: 500; }
+.prov { font-family: var(--font-mono); font-size: 11px; }
+@media (max-width: 900px) {
+  .close { padding: 96px 0 40px; }
+  .method { margin-top: 72px; }
+  .methodHead, .methodBody { grid-column: 1 / -1; }
+  .methodBody { margin-top: 24px; }
+  .dl { grid-template-columns: 1fr; gap: 2px; }
+  .dl dd { margin-bottom: 12px; }
+}

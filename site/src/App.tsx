@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CallScene } from "./components/CallScene";
+import { Close } from "./components/Close";
 import { Curves } from "./components/Curves";
 import { Finding } from "./components/Finding";
 import { Fix } from "./components/Fix";
@@ -35,6 +36,7 @@ export default function App() {
         <Users data={data} />
         <Pipeline data={data} />
       </main>
+      <Close data={data} />
     </>
   );
 }
