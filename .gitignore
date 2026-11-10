@@ -30,3 +30,11 @@ data/long/
 data/external/
 data/manifest_private.csv
 results/private/
+
+# private / internal notes (not part of the submission)
+VIDEO_PLAN.md
+docs/PLAN.md
+site/BRIEF.md
+data/human/RECORDING_KIT.md
+results/key_numbers.md
+results/repair_report.md
